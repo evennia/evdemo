@@ -34,7 +34,7 @@ from twisted.python import log
 # Print nice log messages
 #------------------------------------------------------------
 
-def make_iter(self, obj):
+def make_iter(obj):
     "Make incoming object iterable"
     return obj if hasattr(obj, '__iter__') else [obj]
 
