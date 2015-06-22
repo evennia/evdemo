@@ -34,6 +34,10 @@ from twisted.python import log
 # Print nice log messages
 #------------------------------------------------------------
 
+def make_iter(self, obj):
+    "Make incoming object iterable"
+    return obj if hasattr(obj, '__iter__') else [obj]
+
 def report(text):
     "Pretty-print the activity of the system"
     timestamp = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime(time.time()))
@@ -218,7 +222,7 @@ class RelayBot(irc.IRCClient):
     factory = None
     channel = None
 
-    echouser = None # which user should be echoed
+    echousers = [] # which users should be echoed
     manager = None # through which manager to echo
 
     def signedOn(self):
@@ -233,7 +237,7 @@ class RelayBot(irc.IRCClient):
     def privmsg(self, user, channel, msg):
         "A message was sent to the channel. Relay to manager."
         user = user.split('!', 1)[0]
-        if user == self.echouser and not msg.startswith('***'):
+        if user in self.echousers and not msg.startswith('***'):
             self.manager.relay(msg)
 
     def connectionMade(self):
@@ -256,11 +260,11 @@ class RelayBotFactory(protocol.ReconnectingClientFactory):
     factor = 1.5
     maxDelay = 60
 
-    def __init__(self, nickname, channel, echouser, manager):
+    def __init__(self, nickname, channel, echousers, manager):
         "Storing some important protocol properties"
         self.nickname = nickname
         self.channel = channel
-        self.echouser = echouser
+        self.echousers = make_iter(echousers)
         self.manager = manager
         self.bot = None
 
@@ -422,7 +426,7 @@ def mail_IRC_log(logger, channel, smtp, from_addr, to_addr):
     Send latest IRC log to mailing list
     """
     minloglength = 20
-    log = logger.read_unpublished_log()
+    _log = logger.read_unpublished_log()
     lenlog = log.count('\n')
     if not lenlog >= minloglength:
         # skip publication
@@ -431,7 +435,7 @@ def mail_IRC_log(logger, channel, smtp, from_addr, to_addr):
         # log long enough, format it
         date = time.strftime("%Y-%m-%d", time.localtime(time.time()))
         string = "Log of IRC channel %s (log published %s)" % (channel, date)
-        log = "%s\n\n%s" % (string, log)
+        _log = "%s\n\n%s" % (string, _log)
         # convert log to email
         mail = MIMEText(log)
         mail['Subject'] = "[evennia] %s IRC log - %s" % (channel, date)
@@ -470,7 +474,7 @@ if __name__ == '__main__':
 
     # settings for relay IRC bot
     relay_bot_nickname = "evenniarelay"
-    relay_echouser = "evennia-github"
+    relay_echousers = ("evennia-github", "ainneve-github")
     relay_irc_network = "irc.freenode.net"
     relay_irc_port = 6667
     relay_irc_channel = "#evennia-commits"
@@ -496,7 +500,7 @@ if __name__ == '__main__':
     # Setting up feeds
     report("starting announce bot %s for %s:%s/%s - initalizing all feeds ..." % (announce_bot_nickname, announce_irc_network,
                                                                                   announce_irc_port, announce_irc_channel))
-    report("starting relay bot %s (echoing %s) for %s:%s/%s - initalizing all feeds ..." % (relay_bot_nickname, relay_echouser,
+    report("starting relay bot %s (echoing %s) for %s:%s/%s - initalizing all feeds ..." % (relay_bot_nickname, relay_echousers,
                                                                                             relay_irc_network, relay_irc_port, relay_irc_channel))
     wikifeed = FeedReader(wikifeed)
     forumfeed = FeedReader(forumfeed)
@@ -507,7 +511,7 @@ if __name__ == '__main__':
     ircbots = IRCRelayManager()
     ircbots.add_announcebot(announce_bot_nickname, irc_logger, announce_irc_channel,
                             announce_irc_network, announce_irc_port)
-    ircbots.add_relaybot(relay_bot_nickname, relay_irc_channel, relay_echouser,
+    ircbots.add_relaybot(relay_bot_nickname, relay_irc_channel, relay_echousers,
                          relay_irc_network, relay_irc_port)
     ircbots.start()
 
@@ -527,8 +531,3 @@ if __name__ == '__main__':
 
     reactor.addSystemEventTrigger('before', 'shutdown', handle_close, irc_logger)
     reactor.run()
-
-
-
-
-
