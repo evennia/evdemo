@@ -275,7 +275,7 @@ class RelayBotFactory(protocol.ReconnectingClientFactory):
         protocol.nickname = self.nickname
         protocol.channel = self.channel
         protocol.manager = self.manager
-        protocol.echouser = self.echouser
+        protocol.echousers = self.echousers
         return protocol
 
     def startedConnecting(self, connector):
@@ -303,9 +303,9 @@ class IRCRelayManager(object):
         self.announce_irc_network = irc_network
         self.announce_irc_port = irc_port
 
-    def add_relaybot(self, nickname, channel, echouser, irc_network, irc_port):
+    def add_relaybot(self, nickname, channel, echousers, irc_network, irc_port):
         "Add factory, making sure to store ourselves"
-        self.relay_factory = RelayBotFactory(nickname, channel, echouser, self)
+        self.relay_factory = RelayBotFactory(nickname, channel, echousers, self)
         self.relay_irc_network = irc_network
         self.relay_irc_port = irc_port
 
