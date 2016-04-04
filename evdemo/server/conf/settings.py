@@ -38,23 +38,32 @@ HTTP_LOG_FILE = os.path.join(LOG_DIR, 'http_requests.log')
 
 TELNET_PORTS = [4444]
 #TELNET_INTERFACES = ['127.0.0.1'] # lockdown mode
-TELNET_INTERFACES = ['176.58.89.89']#,'176.58.89.34']
+TELNET_INTERFACES = ['162.208.48.93']
 AMP_PORT = 4445
 WEBSERVER_ENABLED = True
 WEBCLIENT_ENABLED = True
-WEBSERVER_PORTS = [(8888, 5001)]
+WEBSERVER_PORTS = [(8000, 5001)]
 WEBSOCKET_CLIENT_PORT = 8022
 #WEBSOCKET_CLIENT_INTERFACE = '127.0.0.1' # lockdown mode
 WEBSOCKET_CLIENT_INTERFACE = '176.58.89.89'
-WEBSOCKET_CLIENT_URL = 'ws://176.58.89.89'
+WEBSOCKET_CLIENT_URL = 'ws://162.208.48.93'
 #DEBUG = True
 
-WEBSERVER_INTERFACES = ['176.58.89.89']#, '176.58.89.34']
+WEBSERVER_INTERFACES = ['162.208.48.93']
 IDLE_TIMEOUT = 3600 * 24 * 7 # a week
 PERMISSION_PLAYER_DEFAULT = "Builders"
 
 IRC_ENABLED = True
-ALLOWED_HOSTS = ['176.58.89.89']#,'176.58.89.34' ]
+ALLOWED_HOSTS = ['.horizondark.com']
+
+GAME_DIRECTORY_LISTING = {
+    'game_status': 'launched',
+    'game_website': 'http://horizondark.com:8000',
+    'listing_contact': 'a@a.com',
+    'telnet_hostname': 'horizondark.com',
+    'telnet_port': 4444,
+    }
+
 
 DATABASES = {
     'default': {
