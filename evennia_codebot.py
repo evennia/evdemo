@@ -1,6 +1,6 @@
 #! /usr/bin/python
 # Copyright (c) 2009 Steven Robertson.
-#           (c) 2010-2013 Griatch
+#           (c) 2010-2016 Griatch
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or
@@ -20,15 +20,57 @@ The bot uses threading to avoid lockups when loading very
 slow RSS urls (this used to cause it to time out)
 
 """
-__version__ = "0.4"
+__version__ = "0.5"
 
-import time, re
+import time, re, os
 import feedparser
 from twisted.words.protocols import irc
 from twisted.mail.smtp import sendmail
 from email.mime.text import MIMEText
 from twisted.internet import reactor, protocol, task, threads
 from twisted.python import log
+
+# tail log files
+
+def tail_log_file(filename, offset, nlines):
+    """
+    Return the tail of a logfile without writing to it.
+
+    Args:
+        filename (str): The name of the log file, presumed to be in
+            the Evennia log dir.
+        offset (int): The line offset *from the end of the file* to start
+            reading from. 0 means to start at the latest entry.
+        nlines (int): How many lines to return, counting backwards
+            from the offset. If file is shorter, will get all lines.
+    Returns:
+        lines (deferred or list): This will be a deferred if `callable` is given,
+            otherwise it will be a list with The nline entries from the end of the file, or
+            all if the file is shorter than nlines.
+
+    """
+    def seek_file(filehandle, offset, nlines):
+        "step backwards in chunks and stop only when we have enough lines"
+        lines_found = []
+        buffer_size = 4098
+        block_count = -1
+        while len(lines_found) < (offset + nlines):
+            try:
+                # scan backwards in file, starting from the end
+                filehandle.seek(block_count * buffer_size, os.SEEK_END)
+            except IOError:
+                # file too small for this seek, take what we've got
+                filehandle.seek(0)
+                lines_found = filehandle.readlines()
+                break
+            lines_found = filehandle.readlines()
+            block_count -= 1
+        # return the right number of lines
+        lines_found = lines_found[-nlines-offset:-offset if offset else None]
+        return lines_found
+
+    with open(filename, 'r') as filehandle:
+        return seek_file(filehandle, offset, nlines)
 
 #------------------------------------------------------------
 # Print nice log messages
@@ -107,6 +149,13 @@ class IRCLog(object):
         self.filehandle = open(self.filename, 'a', 0)
         return lines
 
+    def tail_log(self, offset=0, nlines=20):
+        """
+        Return nlines lines of text from the end of the log,
+        or starting nend lines from the end.
+        """
+        return tail_log_file(self.filename, offset, nlines)
+
     def close_logfile(self):
         "Cleanly close log file"
         try:
@@ -124,7 +173,7 @@ class IRCLog(object):
 
 
 #------------------------------------------------------------
-# IRC bot
+# The 'evenniabot' IRC bot
 #------------------------------------------------------------
 
 class AnnounceBot(irc.IRCClient):
@@ -156,9 +205,27 @@ class AnnounceBot(irc.IRCClient):
         return True
 
     def privmsg(self, user, channel, msg):
-        "A message was sent to channel"
-        if not msg.startswith('***'):
-            user = user.split('!', 1)[0]
+        "A message was sent to channel or to us"
+        user = user.split('!', 1)[0]
+        if channel == self.nickname:
+            # a private message to us - don't log it
+            nlines = 20
+            if msg.startswith("log"):
+                # we accept a private message on the form log <nlines>
+                arg = msg[3:]
+                try:
+                    offset = int(arg)
+                except Exception:
+                    self.say(user, "You will always get {nlines} lines of log from me. "
+                                   "But you can give a number as to how many lines "
+                                   "back you want those {nlines} lines to start. Example: log 200".format(nlines=nlines))
+                    return
+                logtxt = self.logger.tail_log(offset, nlines=nlines)
+                if logtxt:
+                    self.say(user, logtxt)
+                else:
+                    self.say(user, "No log found.")
+        elif not msg.startswith('***'):
             self.logger.write_log("%s: %s" % (user, msg))
 
     def action(self, user, channel, msg):
