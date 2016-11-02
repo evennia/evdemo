@@ -44,8 +44,7 @@ def tail_log_file(filename, offset, nlines):
         nlines (int): How many lines to return, counting backwards
             from the offset. If file is shorter, will get all lines.
     Returns:
-        lines (deferred or list): This will be a deferred if `callable` is given,
-            otherwise it will be a list with The nline entries from the end of the file, or
+        lines (list): A list with the nline entries from the end of the file, or
             all if the file is shorter than nlines.
 
     """
@@ -154,7 +153,7 @@ class IRCLog(object):
         Return nlines lines of text from the end of the log,
         or starting nend lines from the end.
         """
-        return tail_log_file(self.filename, offset, nlines)
+        return "\n".join(tail_log_file(self.filename, offset, nlines))
 
     def close_logfile(self):
         "Cleanly close log file"
