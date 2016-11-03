@@ -208,7 +208,6 @@ class AnnounceBot(irc.IRCClient):
         user = user.split('!', 1)[0]
         if channel == self.nickname:
             # a private message to us - don't log it
-            print "Private message to bot:", user, channel, msg
             nlines = 20
             if msg.startswith("log"):
                 # we accept a private message on the form log <nlines>
@@ -216,16 +215,16 @@ class AnnounceBot(irc.IRCClient):
                 try:
                     offset = int(arg)
                 except Exception:
-                    self.msg(user, "You will always get {nlines} lines of log from me. "
-                                   "But you can give a number as to how many lines "
-                                   "back you want those {nlines} lines to start. Example: log 200".format(nlines=nlines))
+                    self.msg(user, "You will always get a maximum of {nlines} logged lines from me. "
+                                   "But you can choose how far back those {nlines} lines begin. "
+                                   "Example: messaging me 'log 200' will give you 20 lines from "
+                                   "the log starting 200 lines from the latest entry.")
                     return
                 logtxt = self.logger.tail_log(offset, nlines=nlines)
                 if logtxt:
-                    print "say to user:", user, logtxt
+                    print "log requested by %s (position %i)" % (user, offset)
                     self.msg(user, logtxt)
                 else:
-                    print "no log found"
                     self.msg(user, "No log found.")
         elif not msg.startswith('***'):
             self.logger.write_log("%s: %s" % (user, msg))
