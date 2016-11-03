@@ -212,13 +212,15 @@ class AnnounceBot(irc.IRCClient):
             if msg.startswith("log"):
                 # we accept a private message on the form log <nlines>
                 arg = msg[3:]
+                if not arg:
+                    arg = 0
                 try:
                     offset = int(arg)
                 except Exception:
                     self.msg(user, "You will always get a maximum of {nlines} logged lines from me. "
                                    "But you can choose how far back those {nlines} lines begin. "
-                                   "Example: messaging me 'log 200' will give you 20 lines from "
-                                   "the log starting 200 lines from the latest entry.")
+                                   "Example: messaging me 'log 200' will give you {nlines} lines from "
+                                   "the log starting 200 lines from the latest entry.".format(nlines=nlines))
                     return
                 logtxt = self.logger.tail_log(offset, nlines=nlines)
                 if logtxt:
