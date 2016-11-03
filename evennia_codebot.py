@@ -212,7 +212,7 @@ class AnnounceBot(irc.IRCClient):
             if msg.startswith("log"):
                 # we accept a private message on the form log <nlines>
                 arg = msg[3:]
-                if not arg:
+                if not arg.strip():
                     arg = 0
                 try:
                     offset = int(arg)
@@ -228,6 +228,10 @@ class AnnounceBot(irc.IRCClient):
                     self.msg(user, logtxt)
                 else:
                     self.msg(user, "No log found.")
+            else:
+                # any other input
+                self.msg("To view my backlog, try 'log' or 'log help'.")
+
         elif not msg.startswith('***'):
             self.logger.write_log("%s: %s" % (user, msg))
 
