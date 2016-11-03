@@ -199,7 +199,7 @@ class AnnounceBot(irc.IRCClient):
 
     def trysay(self, msg):
         """Attempts to send the given message to the channel."""
-        self.say(self.channel, msg)
+        self.msg(self.channel, msg)
         self.logger.write_log(msg)
         return True
 
@@ -208,6 +208,7 @@ class AnnounceBot(irc.IRCClient):
         user = user.split('!', 1)[0]
         if channel == self.nickname:
             # a private message to us - don't log it
+            print "Private message to bot:", user, channel, msg
             nlines = 20
             if msg.startswith("log"):
                 # we accept a private message on the form log <nlines>
@@ -215,15 +216,17 @@ class AnnounceBot(irc.IRCClient):
                 try:
                     offset = int(arg)
                 except Exception:
-                    self.say(user, "You will always get {nlines} lines of log from me. "
+                    self.msg(user, "You will always get {nlines} lines of log from me. "
                                    "But you can give a number as to how many lines "
                                    "back you want those {nlines} lines to start. Example: log 200".format(nlines=nlines))
                     return
                 logtxt = self.logger.tail_log(offset, nlines=nlines)
                 if logtxt:
-                    self.say(user, logtxt)
+                    print "say to user:", user, logtxt
+                    self.msg(user, logtxt)
                 else:
-                    self.say(user, "No log found.")
+                    print "no log found"
+                    self.msg(user, "No log found.")
         elif not msg.startswith('***'):
             self.logger.write_log("%s: %s" % (user, msg))
 
