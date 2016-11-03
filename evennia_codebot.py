@@ -230,7 +230,7 @@ class AnnounceBot(irc.IRCClient):
                     self.msg(user, "No log found.")
             else:
                 # any other input
-                self.msg("To view my backlog, try 'log' or 'log help'.")
+                self.msg(user, "To view backlog, try 'log' or 'log help'.")
 
         elif not msg.startswith('***'):
             self.logger.write_log("%s: %s" % (user, msg))
