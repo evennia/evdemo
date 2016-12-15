@@ -34,7 +34,7 @@ SERVERNAME = "Evdemo"
 # open to the internet: 4280, 4281, 4282
 # closed to the internet (internal use): 4283, 4284
 TELNET_PORTS = [4280]
-WEBSERVER_PORTS [(4281, 4283)]
+WEBSERVER_PORTS = [(4281, 4283)]
 WEBSOCKET_CLIENT_PORT = 4282
 AMP_PORT = 4284
 ALLOWED_HOSTS = [".silvren.com"]
