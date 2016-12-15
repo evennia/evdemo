@@ -43,7 +43,8 @@ class Object(DefaultObject):
      player (Player) - controlling player (if any, only set together with
                        sessid below)
      sessid (int, read-only) - session id (if any, only set together with
-                       player above)
+                       player above). Use `sessions` handler to get the
+                       Sessions directly.
      location (Object) - current location. Is None if this is a room
      home (Object) - safety start-location
      sessions (list of Sessions, read-only) - returns all sessions connected
@@ -66,6 +67,8 @@ class Object(DefaultObject):
      scripts - script-handler. Add new scripts to object with scripts.add()
      cmdset - cmdset-handler. Use cmdset.add() to add new cmdsets to object
      nicks - nick-handler. New nicks with nicks.add().
+     sessions - sessions-handler. Get Sessions connected to this
+                object with sessions.get()
 
     * Helper methods (see src.objects.objects.py for full headers)
 
@@ -130,8 +133,10 @@ class Object(DefaultObject):
      at_object_receive(obj, source_location) - called when this object receives
                         another object
 
-     at_before_traverse(traversing_object)                 - (exit-objects only)
-                              called just before an object traverses this object
+     at_traverse(traversing_object, source_loc) - (exit-objects only)
+                              handles all moving across the exit, including
+                              calling the other exit hooks. Use super() to retain
+                              the default functionality.
      at_after_traverse(traversing_object, source_location) - (exit-objects only)
                               called just after a traversal has happened.
      at_failed_traverse(traversing_object)      - (exit-objects only) called if

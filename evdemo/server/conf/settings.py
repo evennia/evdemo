@@ -1,18 +1,27 @@
 """
 Evennia settings file.
 
-The full options are found in the default settings file found here:
+The available options are found in the default settings file found
+here:
 
-/home/griatch/evdemo/evennia/evennia/settings_default.py
+/home/griatch/Devel/MUD/evennia/evennia-trunk/evennia/settings_default.py
 
-Note: Don't copy more from the default file than you actually intend to
+Remember:
+
+Don't copy more from the default file than you actually intend to
 change; this will make sure that you don't overload upstream updates
 unnecessarily.
+
+When changing a setting requiring a file system path (like
+path/to/actual/file.py), use GAME_DIR and EVENNIA_DIR to reference
+your game folder and the Evennia library folders respectively. Python
+paths (path.to.module) should be given relative to the game's root
+folder (typeclasses.foo) whereas paths within the Evennia library
+needs to be given explicitly (evennia.foo).
 
 """
 
 # Use the defaults from Evennia unless explicitly overridden
-import os
 from evennia.settings_default import *
 
 ######################################################################
@@ -22,90 +31,43 @@ from evennia.settings_default import *
 # This is the name of your game. Make it catchy!
 SERVERNAME = "Evdemo"
 
-# Path to the game directory (use EVENNIA_DIR to refer to the
-# core evennia library)
-GAME_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# open to the internet: 4280, 4281, 4282
+# closed to the internet (internal use): 4283, 4284
+TELNET_PORTS = [4280]
+WEBSERVER_PORTS [(4281, 4283)]
+WEBSOCKET_CLIENT_PORT = 4282
+AMP_PORT = 4284
+ALLOWED_HOSTS = [".silvren.com"]
+# TELNET_INTERFACES = ['71.171.93.80']
+# WEBSOCKET_CLIENT_INTERFACE = '71.171.93.80'
 
-# Place to put log files
-LOG_DIR = os.path.join(GAME_DIR, "server", "logs")
-SERVER_LOG_FILE = os.path.join(LOG_DIR, 'server.log')
-PORTAL_LOG_FILE = os.path.join(LOG_DIR, 'portal.log')
-HTTP_LOG_FILE = os.path.join(LOG_DIR, 'http_requests.log')
-
-######################################################################
-# Evennia Database config
-######################################################################
-
-TELNET_PORTS = [4444]
-#TELNET_INTERFACES = ['127.0.0.1'] # lockdown mode
-TELNET_INTERFACES = ['162.208.48.93']
-AMP_PORT = 4445
-WEBSERVER_ENABLED = True
-WEBCLIENT_ENABLED = True
-WEBSERVER_PORTS = [(8000, 5001)]
-WEBSOCKET_CLIENT_PORT = 8022
-#WEBSOCKET_CLIENT_INTERFACE = '127.0.0.1' # lockdown mode
-WEBSOCKET_CLIENT_INTERFACE = '176.58.89.89'
-WEBSOCKET_CLIENT_URL = 'ws://162.208.48.93'
-#DEBUG = True
-
-WEBSERVER_INTERFACES = ['162.208.48.93']
-IDLE_TIMEOUT = 3600 * 24 * 7 # a week
+# other settings
+IDLE_TIMEOUT = 3600 * 7
 PERMISSION_PLAYER_DEFAULT = "Builders"
-
 IRC_ENABLED = True
-ALLOWED_HOSTS = ['.horizondark.com']
+
+LOCKDOWN_MODE = False
+
 
 GAME_DIRECTORY_LISTING = {
     'game_status': 'launched',
-    'game_website': 'http://horizondark.com:8000',
+    'game_website': 'http://silvren.com:4281',
     'listing_contact': 'a@a.com',
-    'telnet_hostname': 'horizondark.com',
-    'telnet_port': 4444,
+    'telnet_hostname': 'silvren.com',
+    'telnet_port': 4280,
+    'short_description': "The Evennia demo server",
+    'long_description':'The Evennia demo server shows off a standard install of Evennia. People can play around as builders and explore some of the functi    onality. You can chat to deveopers in the Evennia IRC channel directly from the demo. Max idle time is seven days and the demo may be reset without notice,     at which point you need to recreate your account.'
     }
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(GAME_DIR, "server", "evennia.db3"),
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': ''
-        }}
 
 ######################################################################
 # Django web features
 ######################################################################
 
-# Absolute path to the directory that holds file uploads from web apps.
-# Example: "/home/media/media.lawrence.com"
-MEDIA_ROOT = os.path.join(GAME_DIR, "web", "media")
-
-# The master urlconf file that contains all of the sub-branches to the
-# applications. Change this to add your own URLs to the website.
-ROOT_URLCONF = 'web.urls'
-
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure
-# to use a trailing slash. Django1.4+ will look for admin files under
-# STATIC_URL/admin.
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(GAME_DIR, "web", "static")
-
-# Directories from which static files will be gathered from.
-STATICFILES_DIRS = (
-    os.path.join(GAME_DIR, "web", "static_overrides"),
-    os.path.join(EVENNIA_DIR, "web", "static"),)
-
-# We setup the location of the website template as well as the admin site.
-TEMPLATE_DIRS = (
-    os.path.join(GAME_DIR, "web", "template_overrides"),
-    os.path.join(EVENNIA_DIR, "web", "templates", ACTIVE_TEMPLATE),
-    os.path.join(EVENNIA_DIR, "web", "templates"),)
 
 # The secret key is randomly seeded upon creation. It is used to sign
 # Django's cookies. Do not share this with anyone. Changing it will
 # log out all active web browsing sessions. Game web client sessions
 # may survive.
-SECRET_KEY = 'U&9fbRJ@ere3rMjrGPOex(p$nFc8gsdfsPRs1Ht`3"Sy!M);#}4rl"'  # changed on deployment
+SECRET_KEY = 'H/,^%v)6+_7.~TiR;BK*]-u$"fEMZF(w`[2=j&nV'

@@ -3,14 +3,14 @@ Player
 
 The Player represents the game "account" and each login has only one
 Player object. A Player is what chats on default channels but has no
-other in-game-world existance. Rather the Player puppets Objects (such
+other in-game-world existence. Rather the Player puppets Objects (such
 as Characters) in order to actually participate in the game world.
 
 
 Guest
 
 Guest players are simple low-level accounts that are created/deleted
-on the fly and allows users to test the game without the committment
+on the fly and allows users to test the game without the commitment
 of a full registration. Guest accounts are deactivated by default; to
 activate them, add the following line to your settings file:
 
@@ -65,7 +65,7 @@ class Player(DefaultPlayer):
 
      msg(text=None, **kwargs)
      swap_character(new_character, delete_old_character=False)
-     execute_cmd(raw_string, sessid=None)
+     execute_cmd(raw_string, session=None)
      search(ostring, global_search=False, attribute_name=None, use_nicks=False, location=None, ignore_errors=False, player=False)
      is_typeclass(typeclass, exact=False)
      swap_typeclass(new_typeclass, clean_attributes=False, no_default=True)
@@ -83,7 +83,7 @@ class Player(DefaultPlayer):
      at_init()
      at_cmdset_get(**kwargs)
      at_first_login()
-     at_post_login(sessid=None)
+     at_post_login(session=None)
      at_disconnect()
      at_message_receive()
      at_message_send()

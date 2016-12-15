@@ -1,68 +1,38 @@
+# -*- coding: utf-8 -*-
 """
-Connect screen module template
+Connection screen
 
-Copy this module one level up, to gamesrc/conf/, name it what
-you want and modify it to your liking.
+Texts in this module will be shown to the user at login-time.
 
-Then you set settings.CONNECTION_SCREEN_MODULE to point to your
-new module.
+Evennia will look at global string variables (variables defined
+at the "outermost" scope of this module and use it as the
+connection screen. If there are more than one, Evennia will
+randomize which one it displays.
 
-
- This module holds textual connection screen definitions.  All global
- string variables (only) in this module are read by Evennia and
- assumed to define a Connection screen.
-
- The names of the string variables doesn't matter (except they
- shouldn't start with _), but each should hold a string defining a
- connection screen - as seen when first connecting to the game
- (before having logged in).
-
- OBS - If there are more than one string variable viable in this
- module, a random one is picked!
-
- After adding new connection screens to this module you must either
- reboot or reload the server to make them available.
+The commands available to the user when the connection screen is shown
+are defined in commands.default_cmdsets.UnloggedinCmdSet and the
+screen is read and displayed by the unlogged-in "look" command.
 
 """
 
 from django.conf import settings
 from evennia import utils
 
-CUSTOM_SCREEN = \
+CONNECTION_SCREEN = \
 """{b=============================================================={n
- Welcome to the test install of {gEvennia{n
- currently running version %s
- (generously hosted by Puciek - Thanks!)
+ Welcome to the demo install of Evennia |g%s|n,
+ currently running version %s!
+ (generously hosted by Jarin at silvren.com - Thanks!)
 
  This demo instance may reset without warning, in which case
  you will have to recreate your account.
 
  If you have an existing account, connect to it by typing:
       {wconnect <username> <password>{n
- To create a new account, type (without the <>'s):
+ If you need to create an account, type (without the <>'s):
       {wcreate <username> <password>{n
 
  If you have spaces in your username, enclose it in quotes.
  Enter {whelp{n for more info. {wlook{n will re-show this screen.
-{b=============================================================={n""" % utils.get_evennia_version()
-
-# # Mux-like alternative screen for contrib/mux_login.py
-
-# MUX_SCREEN = \
-# """{b=============================================================={n
-# Welcome to {gEvennia{n, version %s!
-#
-# If you have an existing account, connect to it by typing:
-#      {wconnect <email> <password>{n
-# If you need to create an account, type (without the <>'s):
-#      {wcreate \"<username>\" <email> <password>{n
-#
-# Enter {whelp{n for more info. {wlook{n will re-load this screen.
-#{b=============================================================={n""" % utils.get_evennia_version()
-
-# # Menu login minimal header for contrib/menu_login.py
-
-#MENU_SCREEN = \
-# """{b=============================================================={n
-#  Welcome to the online test install of {gEvennnia{n (Beta version)
-# {b=============================================================={n"""
+{b=============================================================={n""" \
+ % (settings.SERVERNAME, utils.get_evennia_version())

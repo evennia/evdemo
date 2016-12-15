@@ -25,8 +25,9 @@ __pycache__
 *.restart
 *.db3
 
-# Installation-specific
-#server/conf/settings.py
+# Installation-specific. 
+# For group efforts, comment out some or all of these.
+server/conf/settings.py
 server/logs/*.log.*
 web/static/*
 web/media/*
