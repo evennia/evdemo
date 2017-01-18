@@ -6,8 +6,8 @@ Commands describe the input the player can do to the game.
 """
 
 from evennia import Command as BaseCommand
-# from evennia import default_cmds
-
+from evennia import default_cmds
+from evennia.commands import cmdset
 
 class Command(BaseCommand):
     """
@@ -30,6 +30,21 @@ class Command(BaseCommand):
 
     """
     pass
+
+class CmdNoLimbo(default_cmds.MuxCommand):
+    """
+    This command is not available in Limbo. Go to the |ySandbox|n to experiment and get the full help text.
+
+    """
+    key = "build"
+    locks = "cmd:perm(desc) or perm(Builders)"
+    help_category = "Building"
+
+    def func(self):
+        self.caller.msg("Building is not available in Limbo. "
+                        "Go to the |ySandbox| to experiment and get all build commands.")
+
+
 
 #------------------------------------------------------------
 #
