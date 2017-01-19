@@ -4,7 +4,7 @@ Evennia settings file.
 The available options are found in the default settings file found
 here:
 
-/home/griatch/Devel/MUD/evennia/evennia-trunk/evennia/settings_default.py
+$devel/evennia/evennia-trunk/evennia/settings_default.py
 
 Remember:
 
@@ -42,7 +42,7 @@ ALLOWED_HOSTS = [".silvren.com"]
 # WEBSOCKET_CLIENT_INTERFACE = '71.171.93.80'
 
 # other settings
-IDLE_TIMEOUT = 3600 * 7
+IDLE_TIMEOUT = 3600 * 24 * 7
 PERMISSION_PLAYER_DEFAULT = "Builders"
 IRC_ENABLED = True
 
