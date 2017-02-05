@@ -42,7 +42,7 @@ ALLOWED_HOSTS = [".silvren.com"]
 # WEBSOCKET_CLIENT_INTERFACE = '71.171.93.80'
 
 # other settings
-IDLE_TIMEOUT = 3600 * 7
+IDLE_TIMEOUT = 3600 * 24 * 7
 PERMISSION_PLAYER_DEFAULT = "Builders"
 IRC_ENABLED = True
 
@@ -55,6 +55,7 @@ GAME_DIRECTORY_LISTING = {
     'listing_contact': 'a@a.com',
     'telnet_hostname': 'silvren.com',
     'telnet_port': 4280,
+    'web_client_url': 'http://silvren.com:4281/webclient',
     'short_description': "The Evennia demo server",
     'long_description':'The Evennia demo server shows off a standard install of Evennia. People can play around as builders and explore some of the functi    onality. You can chat to deveopers in the Evennia IRC channel directly from the demo. Max idle time is seven days and the demo may be reset without notice,     at which point you need to recreate your account.'
     }
@@ -70,4 +71,4 @@ GAME_DIRECTORY_LISTING = {
 # Django's cookies. Do not share this with anyone. Changing it will
 # log out all active web browsing sessions. Game web client sessions
 # may survive.
-SECRET_KEY = 'H/,^%v)6+_7.~TiR;BK*]-u$"fEMZF(w`[2=j&nV'
+SECRET_KEY = 'H/,^%v)xx6+_7.ddddjTiR;BK*]-u$"fEMZF(w`[2=j&nV'
