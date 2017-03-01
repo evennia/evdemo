@@ -1,44 +1,71 @@
-# 
+#
 # Build script for evdemo
-# 
+#
 
 @tel #2
 #
-@desc Welcome to the {gEvennia{n (www.evennia.com) demo! Use {w public <message>{n to chat to developers (be patient if you don't get answers right away). |/|/The {gtutorial{n is a small single-player quest. You have been given Builder privileges to learn what is going on behind the scenes but please only test-build new stuff in the {ySandbox{n to keep things clean.|/|/Be aware that this demo will reset without warning, at which point you'll need to recreate your account. If you want to lurk to follow dev discussions, note that you will time out after a week. To avoid this, either partake in discussions, join the IRC channel (which links here) or use a telnet client and send the {widle{n command regularly.
-# 
+@desc Welcome to the |gEvennia|n (www.evennia.com) demo! Use |wpublic <message>|n
+to chat to developers (be patient if you don't get answers right away). 
+
+The |gtutorial|n is a small single-player quest. You have been given Builder privileges
+to learn what is going on behind the scenes but please only test-build new stuff in the
+|ySandbox|n to keep things clean. The |rTutorial|n is a small single-player quest to see
+some of Evennia's possibilities.
+
+Be aware that this demo will reset without warning, at which point you'll need to recreate
+your account. If you want to lurk to follow dev discussions, note that you will time out 
+after a week. To avoid this, either partake in discussions, join the IRC channel (which links 
+here) or use a telnet client and send the |widle|n command regularly.
+#
 @dig Sandbox = sandbox,back to limbo;back;limbo
 #
-@desc sandbox = "This path leads to the {ySandbox{n, a place to experiment with building and pressing evil-looking red buttons.
-# 
+@desc sandbox = "This path leads to the |ySandbox|n, a place to experiment with building and pressing evil-looking red buttons.
+#
 sandbox
-# 
-@desc This is a vast area of sweeping sand, ready for shaping. A {gPalm tree{n offers some shade. A large chunk of |335Rock|n seems to have some sort of inscription on it.
+#
+@desc This is a vast area of sweeping sand, ready for shaping. A |gPalm tree|n offers some 
+shade. A large chunk of |335Rock|n seems to have some sort of inscription on it.
+#
+@lock here = edit:perm(Wizards)
+#
+@lock back = get:false();edit:perm(Wizards)
 #
 @create/drop large chunk of rock;rock;chunk;large
 #
-@desc rock = This is a large chunk of rock sticking out of the sand. It is inscribed with the text |335Evennia sandbox - experiment with building here!{n There is a smaller text underneath that adds: |355This demo is just using the bare-bone default command set. See the manual and ask on the public channel if you have any questions.{n
+@desc rock = This is a large chunk of rock sticking out of the sand. It is inscribed with 
+the text |335Evennia sandbox - experiment with building here!|n There is a smaller text 
+underneath that adds: |355This demo is just using the bare-bone default command set. See the manual 
+and ask on the public channel if you have any questions.|n
 #
-@lock rock = get:false()
+@lock rock = edit:perm(Wizards);get:false()
 #
 @set rock/get_err_msg = "The rock is way too heavy to lift."
 #
 @dig Top of the Palm Tree = climb up the palm tree;up;u;climb;palm;tree,climb back down;down;d;back
 #
-@desc tree = The tree seems to have some sort of wooden platform at the top. It would be easy enough to climb up to it.
+@desc up = The tree seems to have some sort of wooden platform at the top. It would be easy enough to climb up to it.
+#
+@lock up = get:false();edit:perm(Wizards)
+#
+@set up/get_err_msg = "The tree is firmly stuck to the ground."
 #
 up
 #
-@desc At the top of the palm tree a wooden platform has been mounted. In the middle of the floor sits a {rRed Button{n under a glass lid.
+@desc At the top of the palm tree a wooden platform has been mounted. In the middle of the floor sits a |rRed Button|n under a glass lid.
+#
+@lock here = edit:perm(Wizards)
 #
 @create/drop red button;button;red:contrib.tutorial_examples.red_button.RedButton
 #
-@lock button = get:false()
+@lock button = get:false();edit:(Wizards)
 #
 @set button/get_err_msg = "The button is securely fastened to the platform."
 #
 @tel #2
 #
-say "Now run: @irc2chan public = irc.freenode.net 6667 #evennia evdemo
+@typeclass here = rooms.RestrictedRoom
 #
-say "Finally, run: @batchcommand contrib.tutorial_world.build
+say Now run: @irc2chan public = irc.freenode.net 6667 #evennia evdemo
+#
+say Finally, run: @batchcommand contrib.tutorial_world.build
 
