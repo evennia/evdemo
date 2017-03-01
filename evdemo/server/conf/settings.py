@@ -4,7 +4,7 @@ Evennia settings file.
 The available options are found in the default settings file found
 here:
 
-/home/griatch/Devel/MUD/evennia/evennia-trunk/evennia/settings_default.py
+$devel/evennia/evennia-trunk/evennia/settings_default.py
 
 Remember:
 
@@ -46,7 +46,7 @@ IDLE_TIMEOUT = 3600 * 24 * 7
 PERMISSION_PLAYER_DEFAULT = "Builders"
 IRC_ENABLED = True
 
-LOCKDOWN_MODE = False
+LOCKDOWN_MODE = True
 
 
 GAME_DIRECTORY_LISTING = {
