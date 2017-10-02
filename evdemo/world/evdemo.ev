@@ -1,5 +1,6 @@
 #
-# Build script for evdemo
+# Build script for evdemo. Note - build this AFTER the tutorial world since it will make
+# Limbo a restricted room!
 #
 
 @tel #2
@@ -26,9 +27,9 @@ sandbox
 @desc This is a vast area of sweeping sand, ready for shaping. A |gPalm tree|n offers some 
 shade. A large chunk of |335Rock|n seems to have some sort of inscription on it.
 #
-@lock here = edit:perm(Wizards)
+@lock here = edit:perm(Admin)
 #
-@lock back = get:false();edit:perm(Wizards)
+@lock back = get:false();edit:perm(Admin)
 #
 @create/drop large chunk of rock;rock;chunk;large
 #
@@ -37,7 +38,7 @@ the text |335Evennia sandbox - experiment with building here!|n There is a small
 underneath that adds: |355This demo is just using the bare-bone default command set. See the manual 
 and ask on the public channel if you have any questions.|n
 #
-@lock rock = edit:perm(Wizards);get:false()
+@lock rock = edit:perm(Admin);get:false()
 #
 @set rock/get_err_msg = "The rock is way too heavy to lift."
 #
@@ -45,7 +46,7 @@ and ask on the public channel if you have any questions.|n
 #
 @desc up = The tree seems to have some sort of wooden platform at the top. It would be easy enough to climb up to it.
 #
-@lock up = get:false();edit:perm(Wizards)
+@lock up = get:false();edit:perm(Admin)
 #
 @set up/get_err_msg = "The tree is firmly stuck to the ground."
 #
@@ -53,11 +54,11 @@ up
 #
 @desc At the top of the palm tree a wooden platform has been mounted. In the middle of the floor sits a |rRed Button|n under a glass lid.
 #
-@lock here = edit:perm(Wizards)
+@lock here = edit:perm(Admin)
 #
 @create/drop red button;button;red:contrib.tutorial_examples.red_button.RedButton
 #
-@lock button = get:false();edit:(Wizards)
+@lock button = get:false();edit:(Admin)
 #
 @set button/get_err_msg = "The button is securely fastened to the platform."
 #

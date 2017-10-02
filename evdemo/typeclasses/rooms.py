@@ -51,5 +51,5 @@ class RestrictedRoom(Room):
     A room type with limited builder commands.
     """
     def at_object_creation(self):
-        self.locks.add("call:not perm(Wizards)")
+        self.locks.add("call:not perm(Admins)")
         self.cmdset.add(RestrictedCmdSet, permanent=True)
