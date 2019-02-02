@@ -105,7 +105,7 @@ def fmt_branch(msg):
 
 
 def fmt_path(msg):
-    return clr(msg), "white"
+    return clr(msg, "white")
 
 
 def fmt_crop(text, length=60):
