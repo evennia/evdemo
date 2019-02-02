@@ -124,7 +124,7 @@ class WebHookServer(Resource):
 
         # Use all methods named _parse_* as parsers
 
-        self.event_parsers = {parser: method for parser, method
+        self.event_parsers = {parser[7:]: method for parser, method
                               in inspect.getmembers(self, predicate=inspect.ismethod)
                               if method.__name__.startswith("_parse_")}
 
