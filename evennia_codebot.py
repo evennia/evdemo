@@ -132,6 +132,8 @@ class WebHookServer(Resource):
         when an event is triggered.
 
         """
+        report("Received request: {}".format(request))
+
         content = self._validate_signature(request)
         if content is None:
             return ""
@@ -645,10 +647,10 @@ if __name__ == '__main__':
 
     # Start tasks and set errbacks on them
 
-    wikifeed_task = task.LoopingCall(
-        report_wiki_RSS_updates, wikifeed, ircbot)
-    wikifeed_task.start(
-        rss_check_frequency, now=False).addErrback(announce_err, "rss 'wiki' feed")
+    # wikifeed_task = task.LoopingCall(
+    #     report_wiki_RSS_updates, wikifeed, ircbot)
+    # wikifeed_task.start(
+    #     rss_check_frequency, now=False).addErrback(announce_err, "rss 'wiki' feed")
 
     forumfeed_task = task.LoopingCall(
         report_forum_RSS_updates, forumfeed, ircbot)
