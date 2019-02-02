@@ -168,25 +168,30 @@ class WebHookServer(Resource):
             hook_id=clr(data['hook_id'], "red"))
 
     def _parse_push(self, data):
+        _show_number = 4  # how many commits to show per push
+        _len_message = 30  # max length of commit message to show
+
         repo = data['repository']['name']
         branch = data['ref'][11:] if data['ref'].startswith("refs/heads/") else data['ref']
         pusher = data['pusher']['name']
         compare_url = data['compare']
         raw_commits = data['commits']
         ncommits = len(raw_commits)
-        if ncommits > 4:
+        if ncommits > _show_number:
             raw_commits = raw_commits[:2] + [None] + raw_commits[:-2]
 
         commits = []
         for commit in raw_commits:
             if commit is None:
-                commits.append(" ... [{} more] ...".format(ncommits - 4))
+                commits.append(" ... [{} more] ...".format(ncommits - _show_number))
             else:
-                author = commit['author']
-                message = commit['message'][:30] + "..." if len(commit['message']) > 30 else ""
+                author = commit['author']['name']
+                message = commit['message']
+                if len(message) > _len_message:
+                    message = '"{}[...]"'.format(message[:_len_message])
                 url = commit['url'][:-33]  # cut away most of the sha
                 commits.append(" {author}: {message} ({url})".format(
-                    author=clr(author, 'blue'),
+                    author=author,
                     message=message,
                     url=fmt_url(url)))
 
