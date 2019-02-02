@@ -169,7 +169,7 @@ class WebHookServer(Resource):
 
     def _parse_push(self, data):
         _show_number = 4  # how many commits to show per push
-        _len_message = 30  # max length of commit message to show
+        _len_message = 60  # max length of commit message to show
 
         repo = data['repository']['name']
         branch = data['ref'][11:] if data['ref'].startswith("refs/heads/") else data['ref']
