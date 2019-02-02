@@ -166,7 +166,40 @@ class WebHookServer(Resource):
             event=clr("[ping]", 'yellow'),
             zen=data['zen'],
             hook_id=clr(data['hook_id'], "red"))
-            # note there is also 'hook' holding the full config!
+
+    def _parse_push(self, data):
+        repo = data['repository']['name']
+        branch = data['ref'][11:] if data['ref'].startswith("refs/heads/") else data['ref']
+        pusher = data['pusher']['name']
+        compare_url = data['compare']
+        raw_commits = data['commits']
+        ncommits = len(raw_commits)
+        if ncommits > 4:
+            raw_commits = raw_commits[:2] + [None] + raw_commits[:-2]
+
+        commits = []
+        for commit in raw_commits:
+            if commit is None:
+                commits.append(" ... [{} more] ...".format(ncommits - 4))
+            else:
+                author = commit['author']
+                message = commit['message'][:30] + "..." if len(commit['message']) > 30 else ""
+                url = commit['url'][:-33]  # cut away most of the sha
+                commits.append(" {author}: {message} ({url})".format(
+                    author=clr(author, 'blue'),
+                    message=message,
+                    url=fmt_url(url)))
+
+        string = ("{event} {pusher} pushed {ncommits} commits to "
+                  "{repo}/{branch} ({compare_url}):\n{commits}".format(
+                        event=clr("[push]", "yellow"),
+                        pusher=pusher,
+                        ncommits=ncommits,
+                        repo=clr(repo, 'cyan'),
+                        branch=clr(branch, 'red'),
+                        compare_url=fmt_url(compare_url),
+                        commits="\n".join(commits)))
+        return string
 
     # entrypoints
 
@@ -178,7 +211,8 @@ class WebHookServer(Resource):
         event_parser = self.event_parsers.get(event)  # , self._parse_default)
 
         if event_parser:
-            report("Parsing '{}' event using event_parser '{}'".format(event, event_parser.__name__))
+            report("Parsing '{}' event using event_parser '{}'".format(
+                event, event_parser.__name__))
             try:
                 result = event_parser(data)
                 if result:
@@ -186,7 +220,8 @@ class WebHookServer(Resource):
                     self.ircbot.bot.trysay(result)
             except AttributeError:
                 if self.irc.bot.bot is None:
-                    report("Note: Event '{}' received before bot finished connecting.".format(event))
+                    report("Note: Event '{}' received before bot "
+                           "finished connecting.".format(event))
                 else:
                     report(traceback.format_exc(30))
             except Exception:
