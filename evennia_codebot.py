@@ -25,7 +25,13 @@ __version__ = "0.6"
 import time
 import re
 import os
+import hmac
+import json
+import traceback
 import feedparser
+from hashlib import sha1
+from twisted.web.resource import Resource
+from twisted.web.server import Site
 from twisted.words.protocols import irc
 from twisted.mail.smtp import sendmail
 from email.mime.text import MIMEText
@@ -33,7 +39,119 @@ from twisted.internet import reactor, protocol, task, threads
 from twisted.python import log
 
 
-# tail log files
+# ------------------------------------------------------------
+#  Print nice log messages
+# ------------------------------------------------------------
+
+def make_iter(obj):
+    "Make incoming object iterable"
+    return obj if hasattr(obj, '__iter__') else [obj]
+
+
+def report(text):
+    "Pretty-print the activity of the system"
+    timestamp = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime(time.time()))
+    print("%s: %s" % (timestamp, text))
+
+
+# ------------------------------------------------------------
+# Handle receiving Github webhooks
+# ------------------------------------------------------------
+
+class WebHookServer(Resource):
+    isLeaf = True
+
+    def __init__(self, ircbot, secret=None):
+        """
+        Args:
+            ircbot_factory (ProtocolFactory): An IRC bot (factory) with a 'bot' property
+                for the relaying parsed data to the connected IRC bot via bot.trysay().
+            secret (str): Secret used to decrypt `X-Hub Signature` header
+                sent from github when 'secret' is set
+
+        """
+        self.secret = secret
+        self.ircbot = ircbot
+        self.event_parsers = {}
+
+    def _validate_signature(self, request):
+        """
+        Extract and validate the `X-Hub-Signature` header using the stored
+        secret to make sure incoming data is ok. Guidelines here:
+        http://pubsubhubbub.googlecode.com/svn/trunk/pubsubhubbub-core-0.3.html#authednotify
+
+        Args:
+            request (Request): Incoming POST request.
+
+        Returns:
+            content (JSON or None): The content or None if signature validation failed.
+
+        """
+        signature = request.getHeader("X-Hub-Signature")
+        content = request.content.read()
+
+        if self.secret is not None:
+            hsh = hmac.new(self.secret, content, sha1)
+            if hsh.digest().encode("hex") != signature[5:]:
+                return None
+
+        return content
+
+    def _default_parser(data):
+        return str(data)
+
+    def _parse_and_send_event_to_irc(self, event, data):
+        """
+        Parse event and relay it to the IRC bot.
+
+        """
+        event_parser = self.event_parsers.get(event, self._default_parser)
+        if event_parser:
+            try:
+                result = event_parser(data)
+                self.ircbot.bot.trysay(result)
+            except Exception:
+                report(traceback.format_exc(30))
+        else:
+            report("Webhook event '{}' lacks parser.".format(event))
+
+    def add_event(self, event, parser):
+        """
+        Add a parser and relayer function for a given webhook event.
+
+        Args:
+            event (str): Identifier for the event to handle.
+            parser (function): Function taking the event data and returning a string.
+
+        """
+        self.event_handlers[event] = parser
+
+    def render_POST(self, request):
+        """
+        Handle the incoming POST request sent from github's webhook service
+        when an event is triggered.
+
+        """
+        content = self._validate_signature(request)
+        if content is None:
+            return ""
+
+        data = json.loads(content)
+        event = request.getHeader("X-GitHub-Event")
+
+        self._parse_and_send_event_to_irc(event, data)
+
+        return ""
+
+    def start(self, port):
+        "Start webhook server."
+        webhook_site = Site(self)
+        reactor.listenTCP(port, webhook_site)
+
+
+# ------------------------------------------------------------
+# Tail log files
+# ------------------------------------------------------------
 
 def tail_log_file(filename, offset, nlines):
     """
@@ -74,20 +192,6 @@ def tail_log_file(filename, offset, nlines):
     with open(filename, 'r') as filehandle:
         return seek_file(filehandle, offset, nlines)
 
-
-# ------------------------------------------------------------
-#  Print nice log messages
-# ------------------------------------------------------------
-
-def make_iter(obj):
-    "Make incoming object iterable"
-    return obj if hasattr(obj, '__iter__') else [obj]
-
-
-def report(text):
-    "Pretty-print the activity of the system"
-    timestamp = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime(time.time()))
-    print("%s: %s" % (timestamp, text))
 
 # IRC message formatting. For reference:
 # \002 bold \003 color \017 reset \026 italic/reverse \037 underline
@@ -188,9 +292,9 @@ class IRCLog(object):
 # The 'evenniacode' IRC bot
 # ------------------------------------------------------------
 
-class EvenniaCodeBot(irc.IRCClient):
+class IRCBotInstance(irc.IRCClient):
     """
-    An IRC bot that tracks actitivity in a channel as well
+    An IRC bot protocol that tracks actitivity in a channel as well
     as sends text to it when prompted.
 
     """
@@ -267,146 +371,39 @@ class EvenniaCodeBot(irc.IRCClient):
         report("disconnected from %s" % self.channel)
 
 
-class EvenniaCodeBotFactory(protocol.ReconnectingClientFactory):
+class IRCBot(protocol.ReconnectingClientFactory):
     """
-    Creates instances of EvenniaCodeBot, connecting with
-    a staggered increase in delay
+    Creates instances of IRCBotInstance, connecting with
+    a staggered increase in delay. To send data, access self.bot.
+
     """
     # scaling reconnect time
     initialDelay = 1
     factor = 1.5
     maxDelay = 60
 
-    def __init__(self, nickname, logger, channel, manager):
+    def __init__(self, nickname, channel, logger):
         "Storing some important protocol properties"
         self.nickname = nickname
         self.logger = logger
         self.channel = channel
-        self.manager = manager
         self.bot = None
 
     def buildProtocol(self, addr):
         "Build the protocol and assign it some properties"
-        protocol = EvenniaCodeBot()
+        protocol = IRCBotInstance()
         protocol.factory = self
         protocol.nickname = self.nickname
         protocol.logger = self.logger
         protocol.channel = self.channel
-        protocol.manager = self.manager
         return protocol
 
     def startedConnecting(self, connector):
         "Tracks reconnections for debugging"
         report("%s (re)connecting to %s" % (self.nickname, self.channel))
 
-
-class RelayBot(irc.IRCClient):
-    """
-    Sits in an external channel and echoes the text of
-    a single user to another channel.
-    """
-    lineRate = 1
-
-    # assigned by factory at creation
-    nickname = None
-    factory = None
-    channel = None
-
-    echousers = []  # which users should be echoed
-    manager = None  # through which manager to echo
-
-    def signedOn(self):
-        """
-        Connected. We make sure to store ourself on factory here
-        (this version only allows one bot instance, otherwise
-         the factory would hold a list of bots)
-        """
-        self.join(self.channel)
-        self.factory.bot = self
-
-    def privmsg(self, user, channel, msg):
-        "A message was sent to the channel. Relay to manager."
-        user = user.split('!', 1)[0]
-        if user in self.echousers and not msg.startswith('***'):
-            self.manager.relay(msg)
-
-    def connectionMade(self):
-        "Called when client connects"
-        irc.IRCClient.connectionMade(self)
-        report("%s connected to %s" % (self.nickname, self.channel))
-
-    def connectionLost(self, reason):
-        irc.IRCClient.connectionLost(self, reason)
-        report("%s disconnected from %s" % (self.nickname, self.channel))
-
-
-class RelayBotFactory(protocol.ReconnectingClientFactory):
-    """
-    Creates instances of RelayBot, connecting with
-    a staggered increase in delay
-    """
-    # scaling reconnect time
-    initialDelay = 1
-    factor = 1.5
-    maxDelay = 60
-
-    def __init__(self, nickname, channel, echousers, manager):
-        "Storing some important protocol properties"
-        self.nickname = nickname
-        self.channel = channel
-        self.echousers = make_iter(echousers)
-        self.manager = manager
-        self.bot = None
-
-    def buildProtocol(self, addr):
-        "Build the protocol and assign it some properties"
-        protocol = RelayBot()
-        protocol.factory = self
-        protocol.nickname = self.nickname
-        protocol.channel = self.channel
-        protocol.manager = self.manager
-        protocol.echousers = self.echousers
-        return protocol
-
-    def startedConnecting(self, connector):
-        "Tracks reconnections for debugging"
-        report("%s (re)connecting to %s" % (self.nickname, self.channel))
-
-
-class IRCRelayManager(object):
-    """
-    This manager handles two connected bots, one of which
-    is an EvenniaCodeBot and the other a RelayBot.
-    """
-    def __init__(self):
-        self.evenniacode_factory = None
-        self.evenniacode_irc_network = None
-        self.evenniacode_irc_port = None
-        self.relay_factory = None
-        self.relay_irc_network = None
-        self.relay_irc_port = None
-
-    def add_evenniacodebot(self, nickname, logger, channel, irc_network, irc_port):
-        "Add factory, making sure to store ourselves"
-        self.evenniacode_factory = EvenniaCodeBotFactory(nickname, logger, channel, self)
-        self.evenniacode_irc_network = irc_network
-        self.evenniacode_irc_port = irc_port
-
-    def add_relaybot(self, nickname, channel, echousers, irc_network, irc_port):
-        "Add factory, making sure to store ourselves"
-        self.relay_factory = RelayBotFactory(nickname, channel, echousers, self)
-        self.relay_irc_network = irc_network
-        self.relay_irc_port = irc_port
-
-    def relay(self, msg):
-        "This is called by relay bot when a suitable message is to be echoed by the evenniacode bot"
-        self.evenniacode_factory.bot.trysay(msg)
-
-    def start(self):
-        "Start the manager relay"
-        reactor.connectTCP(self.relay_irc_network, self.relay_irc_port, self.relay_factory)
-        reactor.connectTCP(self.evenniacode_irc_network,
-                           self.evenniacode_irc_port, self.evenniacode_factory)
+    def start(self, network, port):
+        reactor.connectTCP(network, port, self)
 
 
 # ------------------------------------------------------------
@@ -589,18 +586,15 @@ if __name__ == '__main__':
 
     # All per-project customizations should be done here
 
-    # settings for EvenniaCode bot IRC bot
-    evenniacode_bot_nickname = "evenniacode"
-    evenniacode_irc_network = "irc.freenode.net"
-    evenniacode_irc_port = 6667
-    evenniacode_irc_channel = "#evennia"
+    # settings for Webhook server
+    webhook_secret = os.getenv("GITHUB_WEBHOOK_SECRET", None)
+    webhook_port = 7001
 
-    # settings for relay IRC bot
-    relay_bot_nickname = "evenniarelay"
-    relay_echousers = ("evennia-github", "ainneve-github")
-    relay_irc_network = "irc.freenode.net"
-    relay_irc_port = 6667
-    relay_irc_channel = "#evennia-commits"
+    # settings for EvenniaCode bot IRC bot
+    bot_nickname = "evenniacode"
+    irc_network = "irc.freenode.net"
+    irc_port = 6667
+    irc_channel = "#evennia-test"
 
     # RSS feeds
     rss_check_frequency = 10 * 60  # 10 minutes
@@ -618,44 +612,58 @@ if __name__ == '__main__':
     # ------------------------------------------------------------
 
     # Start logger
+
+    report("Opening IRC log ...")
     irc_logger = IRCLog(logfile)
 
-    # Setting up feeds
-    report("starting evenniacode bot %s for %s:%s/%s - initalizing all feeds ..." % (
-        evenniacode_bot_nickname, evenniacode_irc_network,
-        evenniacode_irc_port, evenniacode_irc_channel))
-    report("starting relay bot %s (echoing %s) for %s:%s/%s - initalizing all feeds ..." % (
-        relay_bot_nickname, relay_echousers, relay_irc_network, relay_irc_port, relay_irc_channel))
+    # Starting IRC bot
 
-    wikifeed = FeedReader(wikifeed)
+    report("Configure irc bot %s for %s:%s/%s ..." % (
+        bot_nickname, irc_network, irc_port, irc_channel))
+
+    ircbot = IRCBot(bot_nickname, irc_channel, irc_logger)
+    ircbot.start(irc_network, irc_port)
+
+    # Start WebhookServer
+
+    report("Configuring webhook server on port %s ... " % webhook_port)
+
+    webhook_server = WebHookServer(ircbot, secret=webhook_secret)
+    webhook_server.start(webhook_port)
+
+    # webhook_server.add_event("post", parse_all)
+
+    # Setting up feeds
+
+    # report("Initializing first fetch of wiki feed ... ")
+    # wikifeed = FeedReader(wikifeed)
+
+    report("Initializing feeds ... ")
+
     forumfeed = FeedReader(forumfeed)
     blogfeed = FeedReader(blogfeed)
-    report("... all feeds initialized, starting system")
-
-    # Starting IRC bots
-    ircbots = IRCRelayManager()
-    ircbots.add_evenniacodebot(evenniacode_bot_nickname, irc_logger, evenniacode_irc_channel,
-                               evenniacode_irc_network, evenniacode_irc_port)
-    ircbots.add_relaybot(relay_bot_nickname, relay_irc_channel, relay_echousers,
-                         relay_irc_network, relay_irc_port)
-    ircbots.start()
 
     # Start tasks and set errbacks on them
 
     wikifeed_task = task.LoopingCall(
-        report_wiki_RSS_updates, wikifeed, ircbots.evenniacode_factory)
+        report_wiki_RSS_updates, wikifeed, ircbot)
     wikifeed_task.start(
         rss_check_frequency, now=False).addErrback(announce_err, "rss 'wiki' feed")
 
     forumfeed_task = task.LoopingCall(
-        report_forum_RSS_updates, forumfeed, ircbots.evenniacode_factory)
+        report_forum_RSS_updates, forumfeed, ircbot)
     forumfeed_task.start(
         rss_check_frequency, now=False).addErrback(announce_err, "rss 'forum' feed")
 
     blogfeed_task = task.LoopingCall(
-        report_blog_RSS_updates, blogfeed, ircbots.evenniacode_factory)
+        report_blog_RSS_updates, blogfeed, ircbot)
     blogfeed_task.start(
         rss_check_frequency, now=False).addErrback(announce_err, "rss 'blog' feed")
+
+    report("... all feeds initialized.")
+
+    report("Starting system.")
+
 
     # publish_task = task.LoopingCall(
     #    mail_IRC_log, irc_logger, irc_channel, smtp_server, from_email, to_email)
