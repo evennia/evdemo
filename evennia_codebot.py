@@ -97,6 +97,7 @@ class WebHookServer(Resource):
 
         return content
 
+    @staticmethod
     def _default_parser(data):
         return str(data)
 
