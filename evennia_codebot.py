@@ -100,6 +100,17 @@ def fmt_repo(msg):
     return clr(msg, "pink")
 
 
+def fmt_crop(text, length=60):
+    "Crop text to given length"
+    nlen = len(text)
+    diff = nlen - length
+    if nlen > length:
+        text = "{txt}{postfix}".format(
+            txt=text[:length],
+            postfix=clr("[{} more]".format(diff) if diff > 10 else "[...]", 'grey'))
+    return text
+
+
 # ------------------------------------------------------------
 # Handle receiving Github webhooks
 # ------------------------------------------------------------
@@ -155,16 +166,6 @@ class WebHookServer(Resource):
 
         return content
 
-    def _crop(text, length=60):
-        "Crop text to given length"
-        nlen = len(text)
-        diff = nlen - length
-        if nlen > length:
-            text = "{txt}{postfix}".format(
-                txt=text[:length],
-                postfix=clr("[{} more]".format(diff) if diff > 10 else "[...]", 'grey'))
-        return text
-
     # event parsers
 
     def _parse_default(self, data):
@@ -194,7 +195,7 @@ class WebHookServer(Resource):
                 commits.append(" ... [{} more] ...".format(ncommits - _show_number))
             else:
                 author = commit['author']['name']
-                message = self._crop(commit['message'])
+                message = fmt_crop(commit['message'])
                 url = commit['url'][:-33]  # cut away most of the sha
                 commits.append(" [{author}]: {message} ({url})".format(
                     author=author,
@@ -217,7 +218,7 @@ class WebHookServer(Resource):
         comment = data['comment']
         url = comment['html_url']
         author = comment['user']['login']
-        text = self._crop(comment['body'])
+        text = fmt_crop(comment['body'])
         return "{event} [{author}]: {text} ({url})".format(
             event=fmt_event("commit comment"),
             author=author,
