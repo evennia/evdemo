@@ -175,10 +175,10 @@ class WebHookServer(Resource):
         Parse event using a suitable parser and relay the result to the IRC bot.
 
         """
-        event_parser = self.event_parsers.get(event, self._parse_default)
-        print("Parsing '{}' event using event_parser '{}'".format(event, event_parser))
+        event_parser = self.event_parsers.get(event)  # , self._parse_default)
 
         if event_parser:
+            print("Parsing '{}' event using event_parser '{}'".format(event, event_parser.__name__))
             try:
                 result = event_parser(data)
                 if result:
@@ -187,7 +187,7 @@ class WebHookServer(Resource):
             except Exception:
                 report(traceback.format_exc(30))
         else:
-            report("Webhook event '{}' lacks parser.".format(event))
+            report("Webhook event '{}' lacks a parser.".format(event))
 
     def render_POST(self, request):
         """
@@ -195,7 +195,6 @@ class WebHookServer(Resource):
         when an event is triggered.
 
         """
-        report("Received request: {}".format(request))
 
         content = self._validate_signature(request)
         if content is None:
