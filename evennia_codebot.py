@@ -117,7 +117,10 @@ class WebHookServer(Resource):
         self.secret = secret
         self.ircbot = ircbot
 
-        print("WebhookServer starting with secret '{}'.".format(secret))
+        if secret:
+            print("WebhookServer starting with validation secret '{}'.".format(secret))
+        else:
+            print("WebhookServer starting without validation secret!")
 
         # Use all methods named _parse_* as parsers
 
