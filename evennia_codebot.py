@@ -190,17 +190,17 @@ class WebHookServer(Resource):
                 if len(message) > _len_message:
                     message = '"{}[...]"'.format(message[:_len_message])
                 url = commit['url'][:-33]  # cut away most of the sha
-                commits.append(" {commit} {author}: {message} ({url})".format(
-                    commit=clr("[commit]", 'brown'),
+                commits.append("[{author}]: {message} ({url})".format(
                     author=author,
                     message=message,
                     url=fmt_url(url)))
 
-        string = ("{event} {pusher} pushed {ncommits} commits to "
+        string = ("{event} {pusher} pushed {ncommits} commit{splural} to "
                   "{repo}/{branch} ({compare_url}):\n{commits}".format(
                         event=clr("[push]", "yellow"),
                         pusher=pusher,
                         ncommits=ncommits,
+                        splural="s" if ncommits > 1 else "",
                         repo=clr(repo, 'cyan'),
                         branch=clr(branch, 'red'),
                         compare_url=fmt_url(compare_url),
