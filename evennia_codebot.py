@@ -118,9 +118,9 @@ class WebHookServer(Resource):
         self.ircbot = ircbot
 
         if secret:
-            print("WebhookServer starting with GITHUB_WEBHOOK_SECRET='{}'.".format(secret))
+            report("WebhookServer starting with GITHUB_WEBHOOK_SECRET='{}'.".format(secret))
         else:
-            print("WebhookServer starting without GITHUB_WEBHOOK_SECRET set!")
+            report("WebhookServer starting without GITHUB_WEBHOOK_SECRET set!")
 
         # Use all methods named _parse_* as parsers
 
@@ -147,7 +147,7 @@ class WebHookServer(Resource):
         if self.secret is not None:
             hsh = hmac.new(self.secret, content, sha1)
             if hsh.digest().encode("hex") != signature[5:]:
-                print("A request arrived with mismatching signature.")
+                report("A request arrived with mismatching signature.")
                 return None
 
         return content
@@ -178,12 +178,17 @@ class WebHookServer(Resource):
         event_parser = self.event_parsers.get(event)  # , self._parse_default)
 
         if event_parser:
-            print("Parsing '{}' event using event_parser '{}'".format(event, event_parser.__name__))
+            report("Parsing '{}' event using event_parser '{}'".format(event, event_parser.__name__))
             try:
                 result = event_parser(data)
                 if result:
                     # if not a result, this may be a non-echoable event
                     self.ircbot.bot.trysay(result)
+            except AttributeError:
+                if self.irc.bot.bot is None:
+                    report("Note: Event '{}' received before bot finished connecting.".format(event))
+                else:
+                    report(traceback.format_exc(30))
             except Exception:
                 report(traceback.format_exc(30))
         else:
@@ -382,7 +387,7 @@ class IRCBotInstance(irc.IRCClient):
                     return
                 logtxt = self.logger.tail_log(offset, nlines=nlines)
                 if logtxt:
-                    print("log requested by %s (position %i)" % (user, offset))
+                    report("log requested by %s (position %i)" % (user, offset))
                     self.msg(user, logtxt)
                 else:
                     self.msg(user, "No log found.")
