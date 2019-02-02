@@ -118,6 +118,12 @@ def fmt_crop(text, length=60):
             postfix=clr("[{} more]".format(diff) if diff > 10 else "[...]", 'grey'))
     return text
 
+def fmt_sequence(seq, length=4):
+    assert(length % 2 == 0)  # must be even
+    if len(seq) > length:
+        seq = seq[:length//2] + [None] + seq[-length//2:]
+    return seq
+
 
 # ------------------------------------------------------------
 # Handle receiving Github webhooks
@@ -186,7 +192,7 @@ class WebHookServer(Resource):
             hook_id=clr(data['hook_id'], "red"))
 
     def _parse_push(self, data):
-        _show_number = 4  # how many commits to show per push
+        _show_number = 4  # how many commits to show per push. Must be even.
 
         repo = data['repository']['name']
         branch = data['ref'][11:] if data['ref'].startswith("refs/heads/") else data['ref']
@@ -194,8 +200,7 @@ class WebHookServer(Resource):
         compare_url = data['compare']
         raw_commits = data['commits']
         ncommits = len(raw_commits)
-        if ncommits > _show_number:
-            raw_commits = raw_commits[:2] + [None] + raw_commits[:-2]
+        raw_commits = fmt_sequence(raw_commits, _show_number)
 
         commits = []
         for commit in raw_commits:
@@ -238,6 +243,42 @@ class WebHookServer(Resource):
             repo=fmt_repo(repo),
             text=text,
             url=fmt_url(url))
+
+    def _parse_gollum(self, data):
+        _show_number = 4  # must be even
+
+        repo = data['repository']['name']
+        author = data['sender']['login']
+        raw_pages = data['pages']
+        npages = len(raw_pages)
+        raw_pages = fmt_sequence(raw_pages, _show_number)
+
+        pages = []
+        for page in raw_pages:
+            if page is None:
+                pages.append(" ... [[] more] ...".format(npages - _show_number))
+            else:
+                page_name = page['page_name']
+                title = page['title']
+                title = " ({})".format(title) if title != page_name else ""
+                summary = ": {}".format(fmt_crop(page['summary'])) if page['summary'] else ""
+                action = page['action']
+                url = page['html_url']
+                pages.append(" [{action}]: {page_name}{title}{summary} ({url})".format(
+                    action=action,
+                    page_name=fmt_path(page_name),
+                    title=title,
+                    summary=summary,
+                    url=fmt_url(url)))
+
+        string = ("{event} {author} updated {repo}/{wiki}:\n{pages}".format(
+            event=fmt_event("wiki"),
+            author=author,
+            repo=fmt_repo(repo),
+            wiki=fmt_branch("wiki"),
+            pages="\n".join(pages)))
+
+        return string
 
     # entrypoints
 
