@@ -190,7 +190,8 @@ class WebHookServer(Resource):
                 if len(message) > _len_message:
                     message = '"{}[...]"'.format(message[:_len_message])
                 url = commit['url'][:-33]  # cut away most of the sha
-                commits.append(" {author}: {message} ({url})".format(
+                commits.append(" {commit} {author}: {message} ({url})".format(
+                    commit=clr("[commit]", 'brown'),
                     author=author,
                     message=message,
                     url=fmt_url(url)))
