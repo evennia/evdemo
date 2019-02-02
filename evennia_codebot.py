@@ -216,7 +216,7 @@ class WebHookServer(Resource):
                     url=fmt_url(url)))
 
         string = ("{event} {pusher} pushed {ncommits} commit{splural} to "
-                  "{repo}/{branch} ({compare_url}):\n{commits}".format(
+                  "{repo}/{branch} ({compare_url}):{linebreak}{commits}".format(
                         event=fmt_event("push"),
                         pusher=pusher,
                         ncommits=ncommits,
@@ -224,6 +224,7 @@ class WebHookServer(Resource):
                         repo=fmt_repo(repo),
                         branch=fmt_branch(branch),
                         compare_url=fmt_url(compare_url),
+                        linebreak="\n" if ncommits > 1 else " ",
                         commits="\n".join(commits)))
         return string
 
@@ -271,11 +272,12 @@ class WebHookServer(Resource):
                     summary=summary,
                     url=fmt_url(url)))
 
-        string = ("{event} {author} updated {repo}/{wiki}:\n{pages}".format(
+        string = ("{event} {author} updated {repo}/{wiki}:{linebreak}{pages}".format(
             event=fmt_event("wiki"),
             author=author,
             repo=fmt_repo(repo),
             wiki=fmt_branch("wiki"),
+            linebreak="\n" if npages > 1 else " ",
             pages="\n".join(pages)))
 
         return string
