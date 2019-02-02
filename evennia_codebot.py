@@ -224,7 +224,7 @@ class WebHookServer(Resource):
                         repo=fmt_repo(repo),
                         branch=fmt_branch(branch),
                         compare_url=fmt_url(compare_url),
-                        linebreak="\n" if ncommits > 1 else " ",
+                        linebreak="\n" if ncommits > 1 else "",
                         commits="\n".join(commits)))
         return string
 
@@ -277,7 +277,7 @@ class WebHookServer(Resource):
             author=author,
             repo=fmt_repo(repo),
             wiki=fmt_branch("wiki"),
-            linebreak="\n" if npages > 1 else " ",
+            linebreak="\n" if npages > 1 else "",
             pages="\n".join(pages)))
 
         return string
