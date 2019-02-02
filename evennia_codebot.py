@@ -97,7 +97,15 @@ def fmt_event(event):
 
 
 def fmt_repo(msg):
-    return clr(msg, "pink")
+    return clr(msg, "cyan")
+
+
+def fmt_branch(msg):
+    return clr(msg, "red")
+
+
+def fmt_path(msg):
+    return clr(msg), "white"
 
 
 def fmt_crop(text, length=60):
@@ -208,8 +216,8 @@ class WebHookServer(Resource):
                         pusher=pusher,
                         ncommits=ncommits,
                         splural="s" if ncommits > 1 else "",
-                        repo=clr(repo, 'cyan'),
-                        branch=clr(branch, 'red'),
+                        repo=fmt_repo(repo),
+                        branch=fmt_branch(branch),
                         compare_url=fmt_url(compare_url),
                         commits="\n".join(commits)))
         return string
@@ -217,11 +225,17 @@ class WebHookServer(Resource):
     def _parse_commit_comment(self, data):
         comment = data['comment']
         url = comment['html_url']
+        path = comment['path']
+        line = comment['line']
+        repo = data['repository']['name']
         author = comment['user']['login']
         text = fmt_crop(comment['body'])
-        return "{event} [{author}]: {text} ({url})".format(
+        return "{event} {author} commented on {path}, line {line} in {repo}: {text} ({url})".format(
             event=fmt_event("commit comment"),
             author=author,
+            path=fmt_path(path),
+            line=fmt_path(line),
+            repo=fmt_repo(repo),
             text=text,
             url=fmt_url(url))
 
