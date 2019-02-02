@@ -29,6 +29,7 @@ import hmac
 import json
 import traceback
 import feedparser
+import inspect
 from hashlib import sha1
 from twisted.web.resource import Resource
 from twisted.web.server import Site
@@ -55,8 +56,51 @@ def report(text):
 
 
 # ------------------------------------------------------------
+# IRC message formatting. For reference:
+# ------------------------------------------------------------
+
+# \002 bold \003 color \017 reset \026 italic/reverse \037 underline
+# 0 white 1 black 2 dark blue 3 dark green
+# 4 dark red 5 brownish 6 dark purple 7 orange
+# 8 yellow 9 light green 10 dark teal 11 light teal
+# 12 light blue 13 light purple 14 dark gray 15 light gray
+
+CLR = {"bold": "\002",
+       "color": "\003",
+       "reset": "\017",
+       "italic": "\026",
+       "underline": "\037",
+       "white": "00", "black": "01", "blue": "02", "green": "03", "red": "04", "brown": "05",
+       "purple": "06", "orange": "07", "yellow": "08", "lime": "09", "teal": "10",
+       "cyan": "11", "sky": "12", "pink": "13", "grey": "14", "silver": "15"}
+
+
+def clr(txt, color=False, bold=False, italic=False, underline=False):
+    return "{start}{color}{bold}{italic}{underline}{txt}{reset}" .format(
+        start=CLR['color'],
+        color=CLR.get(color, ""),
+        bold=CLR['bold'] if bold else "",
+        italic=CLR['italic'] if italic else "",
+        underline=CLR['underline'] if underline else "",
+        txt=txt,
+        reset=CLR['reset'])
+
+
+# helpers for feed parser
+def fmt_url(msg):
+    return clr(msg, 'blue', underline=True)
+    # return "\00302\037%s\017" % msg
+
+
+def fmt_repo(msg):
+    return clr(msg, "pink")
+    # return "\00313%s\017" % msg
+
+
+# ------------------------------------------------------------
 # Handle receiving Github webhooks
 # ------------------------------------------------------------
+
 
 class WebHookServer(Resource):
     isLeaf = True
@@ -72,7 +116,12 @@ class WebHookServer(Resource):
         """
         self.secret = secret
         self.ircbot = ircbot
-        self.event_parsers = {}
+
+        # Use all methods named _parse_* as parsers
+
+        self.event_parsers = {parser: method for parser, method
+                              in inspect.getmembers(self, predicate=inspect.ismethod)
+                              if method.__name__.startswith("_parse_")}
 
     def _validate_signature(self, request):
         """
@@ -97,35 +146,42 @@ class WebHookServer(Resource):
 
         return content
 
-    @staticmethod
-    def _default_parser(data):
+    def _form(self, **kwargs):
+
+        "[{section}] "
+
+    # event parsers
+
+    def _parse_default(self, data):
         return str(data)
 
-    def _parse_and_send_event_to_irc(self, event, data):
+    def _parse_ping(self, data):
+        return "{event} zen: {zen}, hook_id: {hook_id}, hook config: {hook}".format(
+            event=clr("[ping]", 'yellow'),
+            zen=data['zen'],
+            hook_id=clr(data['hook_id'], "red"),
+            hook=clr['hook'])
+
+    # entrypoints
+
+    def handle_event(self, event, data):
         """
-        Parse event and relay it to the IRC bot.
+        Parse event using a suitable parser and relay the result to the IRC bot.
 
         """
-        event_parser = self.event_parsers.get(event, self._default_parser)
+        event_parser = self.event_parsers.get(event, self._parse_default)
+        print("Parsing '{}' event using event_parser '{}'".format(event, event_parser))
+
         if event_parser:
             try:
                 result = event_parser(data)
-                self.ircbot.bot.trysay(result)
+                if result:
+                    # if not a result, this may be a non-echoable event
+                    self.ircbot.bot.trysay(result)
             except Exception:
                 report(traceback.format_exc(30))
         else:
             report("Webhook event '{}' lacks parser.".format(event))
-
-    def add_event(self, event, parser):
-        """
-        Add a parser and relayer function for a given webhook event.
-
-        Args:
-            event (str): Identifier for the event to handle.
-            parser (function): Function taking the event data and returning a string.
-
-        """
-        self.event_handlers[event] = parser
 
     def render_POST(self, request):
         """
@@ -142,7 +198,7 @@ class WebHookServer(Resource):
         data = json.loads(content)
         event = request.getHeader("X-GitHub-Event")
 
-        self._parse_and_send_event_to_irc(event, data)
+        self.handle_event(event, data)
 
         return ""
 
@@ -194,32 +250,6 @@ def tail_log_file(filename, offset, nlines):
 
     with open(filename, 'r') as filehandle:
         return seek_file(filehandle, offset, nlines)
-
-
-# IRC message formatting. For reference:
-# \002 bold \003 color \017 reset \026 italic/reverse \037 underline
-# 0 white 1 black 2 dark blue 3 dark green
-# 4 dark red 5 brownish 6 dark purple 7 orange
-# 8 yellow 9 light green 10 dark teal 11 light teal
-# 12 light blue 13 light purple 14 dark gray 15 light gray
-
-
-CL = {"bold": "\002",
-      "color": "\003",
-      "reset": "\017",
-      "italic": "\026",
-      "underline": "37",
-      "white": "0", "black": "1", "dblue": "3", "dgreen": "4", "dred": "4", "brown": "5",
-      "dpurpple": "6", "orange": "7", "yellow": "8", "green": "9", "dteal": "10",
-      "teal": "11", "blue": "12", "purple": "14", "dgrey": "15", "gray": "16"}
-
-
-def fmt_url(msg):
-    return "\00302\037%s\017" % msg
-
-
-def fmt_repo(msg):
-    return "\00313%s\017" % msg
 
 
 # ------------------------------------------------------------
@@ -666,7 +696,6 @@ if __name__ == '__main__':
     report("... all feeds initialized.")
 
     report("Starting system.")
-
 
     # publish_task = task.LoopingCall(
     #    mail_IRC_log, irc_logger, irc_channel, smtp_server, from_email, to_email)
