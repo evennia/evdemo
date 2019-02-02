@@ -318,7 +318,7 @@ class WebHookServer(Resource):
         comment = data['comment']
         url = comment['html_url']
         user = comment['user']['login']
-        text = fmt_crop(comment['body'])
+        text = fmt_crop(comment['body']) if action != 'deleted' else "<deleted>"
 
         return ("{event} {user} {action} comment on issue "
                 "#{number} ({title}) in {repo}: {text} ({url})".format(
