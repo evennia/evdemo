@@ -291,18 +291,45 @@ class WebHookServer(Resource):
             # we don't want too much spam
             return None
         issue = data['issue']
+        issue_num = issue['number']
         url = issue['html_url']
         title = issue['title']
         repo = data['repository']['name']
         user = data['sender']['login']
 
-        return ("{event} {user} {action} issue in {repo}: {title} ({url})".format(
+        return ("{event} {user} {action} issue #{number} in {repo}: {title} ({url})".format(
             event=fmt_event("issues"),
             user=user,
             action=fmt_path(action),
+            number=fmt_path(issue_num),
             repo=fmt_repo(repo),
             title=title,
             url=fmt_url(url)))
+
+    def _parse_issue_comment(self, data):
+        action = data['action']
+        if action in ('edited',):
+            # avoid spam when editing comments
+            return None
+        repo = data['repository']['name']
+        issue = data['issue']
+        issue_title = issue['title']
+        issue_num = issue['number']
+        comment = data['comment']
+        url = comment['html_url']
+        user = comment['user']['login']
+        text = fmt_crop(comment['body'])
+
+        return ("{event} {user} {action} comment on issue "
+                "#{number} ({title}) in {repo}: {text} ({url})".format(
+                    event=fmt_event("issue comment"),
+                    user=user,
+                    action=action,
+                    number=fmt_path(issue_num),
+                    title=issue_title,
+                    repo=fmt_repo(repo),
+                    text=text,
+                    url=fmt_url(url)))
 
     # entrypoints
 
