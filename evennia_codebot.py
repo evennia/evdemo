@@ -225,7 +225,7 @@ class WebHookServer(Resource):
                     # if not a result, this may be a non-echoable event
                     self.ircbot.bot.trysay(result)
             except AttributeError:
-                if self.irc.bot.bot is None:
+                if self.ircbot.bot is None:
                     report("Note: Event '{}' received before bot "
                            "finished connecting.".format(event))
                 else:
