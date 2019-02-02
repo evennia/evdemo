@@ -86,15 +86,18 @@ def clr(txt, color=False, bold=False, italic=False, underline=False):
         reset=CLR['reset'])
 
 
-# helpers for feed parser
+# helpers
+
 def fmt_url(msg):
     return clr(msg, 'blue', underline=True)
-    # return "\00302\037%s\017" % msg
+
+
+def fmt_event(event):
+    return clr("[{}]".format(event), 'yellow')
 
 
 def fmt_repo(msg):
     return clr(msg, "pink")
-    # return "\00313%s\017" % msg
 
 
 # ------------------------------------------------------------
@@ -152,9 +155,15 @@ class WebHookServer(Resource):
 
         return content
 
-    def _form(self, **kwargs):
-
-        "[{section}] "
+    def _crop(text, length=60):
+        "Crop text to given length"
+        nlen = len(text)
+        diff = nlen - length
+        if nlen > length:
+            text = "{txt}{postfix}".format(
+                txt=text[:length],
+                postfix=clr("[{} more]".format(diff) if diff > 10 else "[...]", 'grey'))
+        return text
 
     # event parsers
 
@@ -163,13 +172,12 @@ class WebHookServer(Resource):
 
     def _parse_ping(self, data):
         return "{event} zen: {zen}, hook_id: {hook_id}".format(
-            event=clr("[ping]", 'yellow'),
+            event=fmt_event("ping"),
             zen=data['zen'],
             hook_id=clr(data['hook_id'], "red"))
 
     def _parse_push(self, data):
         _show_number = 4  # how many commits to show per push
-        _len_message = 60  # max length of commit message to show
 
         repo = data['repository']['name']
         branch = data['ref'][11:] if data['ref'].startswith("refs/heads/") else data['ref']
@@ -186,9 +194,7 @@ class WebHookServer(Resource):
                 commits.append(" ... [{} more] ...".format(ncommits - _show_number))
             else:
                 author = commit['author']['name']
-                message = commit['message']
-                if len(message) > _len_message:
-                    message = '"{}[...]"'.format(message[:_len_message])
+                message = self._crop(commit['message'])
                 url = commit['url'][:-33]  # cut away most of the sha
                 commits.append(" [{author}]: {message} ({url})".format(
                     author=author,
@@ -197,7 +203,7 @@ class WebHookServer(Resource):
 
         string = ("{event} {pusher} pushed {ncommits} commit{splural} to "
                   "{repo}/{branch} ({compare_url}):\n{commits}".format(
-                        event=clr("[push]", "yellow"),
+                        event=fmt_event("push"),
                         pusher=pusher,
                         ncommits=ncommits,
                         splural="s" if ncommits > 1 else "",
@@ -206,6 +212,17 @@ class WebHookServer(Resource):
                         compare_url=fmt_url(compare_url),
                         commits="\n".join(commits)))
         return string
+
+    def _parse_commit_comment(self, data):
+        comment = data['comment']
+        url = comment['html_url']
+        author = comment['user']['login']
+        text = self._crop(comment['body'])
+        return "{event} [{author}]: {text} ({url})".format(
+            event=fmt_event("commit comment"),
+            author=author,
+            text=text,
+            url=fmt_url(url))
 
     # entrypoints
 
