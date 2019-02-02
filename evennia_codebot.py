@@ -308,7 +308,7 @@ class WebHookServer(Resource):
 
     def _parse_issue_comment(self, data):
         action = data['action']
-        if action in ('edited',):
+        if action in ('edited', 'deleted'):
             # avoid spam when editing comments
             return None
         repo = data['repository']['name']
@@ -320,7 +320,7 @@ class WebHookServer(Resource):
         user = comment['user']['login']
         text = fmt_crop(comment['body']) if action != 'deleted' else "<deleted>"
 
-        return ("{event} {user} {action} comment on issue "
+        return ("{event} {user} commented on issue "
                 "#{number} ({title}) in {repo}: {text} ({url})".format(
                     event=fmt_event("issue comment"),
                     user=user,
