@@ -118,6 +118,7 @@ def fmt_crop(text, length=60):
             postfix=clr("[{} more]".format(diff) if diff > 10 else "[...]", 'grey'))
     return text
 
+
 def fmt_sequence(seq, length=4):
     assert(length % 2 == 0)  # must be even
     if len(seq) > length:
@@ -281,6 +282,27 @@ class WebHookServer(Resource):
             pages="\n".join(pages)))
 
         return string
+
+    def _parse_issues(self, data):
+        action = data['action']
+        if action in ('deleted', 'edited', 'transferred', 'pinned', 'unpinned',
+                      'assigned', 'unassigned', 'labeled', 'unlabeled',
+                      'milestoned', 'demilestoned'):
+            # we don't want too much spam
+            return None
+        issue = data['issue']
+        url = issue['html_url']
+        title = issue['title']
+        repo = data['repository']['name']
+        user = issue['sender']['login']
+
+        return ("{event} {user} {action} issue in {repo}: {title} ({url})".format(
+            event=fmt_event("issues"),
+            user=user,
+            action=fmt_path(action),
+            repo=fmt_repo(repo),
+            title=title,
+            url=fmt_url(url)))
 
     # entrypoints
 
