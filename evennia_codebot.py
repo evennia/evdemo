@@ -117,6 +117,8 @@ class WebHookServer(Resource):
         self.secret = secret
         self.ircbot = ircbot
 
+        print("WebhookServer starting with secret '{}'.".format(secret))
+
         # Use all methods named _parse_* as parsers
 
         self.event_parsers = {parser: method for parser, method
@@ -142,6 +144,7 @@ class WebHookServer(Resource):
         if self.secret is not None:
             hsh = hmac.new(self.secret, content, sha1)
             if hsh.digest().encode("hex") != signature[5:]:
+                print("A request arrived with mismatching signature.")
                 return None
 
         return content
