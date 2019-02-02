@@ -118,9 +118,9 @@ class WebHookServer(Resource):
         self.ircbot = ircbot
 
         if secret:
-            print("WebhookServer starting with validation secret '{}'.".format(secret))
+            print("WebhookServer starting with GITHUB_WEBHOOK_SECRET='{}'.".format(secret))
         else:
-            print("WebhookServer starting without validation secret!")
+            print("WebhookServer starting without GITHUB_WEBHOOK_SECRET set!")
 
         # Use all methods named _parse_* as parsers
 
