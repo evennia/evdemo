@@ -162,11 +162,11 @@ class WebHookServer(Resource):
         return str(data)
 
     def _parse_ping(self, data):
-        return "{event} zen: {zen}, hook_id: {hook_id}, hook config: {hook}".format(
+        return "{event} zen: {zen}, hook_id: {hook_id}".format(
             event=clr("[ping]", 'yellow'),
             zen=data['zen'],
-            hook_id=clr(data['hook_id'], "red"),
-            hook=clr['hook'])
+            hook_id=clr(data['hook_id'], "red"))
+            # note there is also 'hook' holding the full config!
 
     # entrypoints
 
