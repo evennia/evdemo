@@ -294,7 +294,7 @@ class WebHookServer(Resource):
         url = issue['html_url']
         title = issue['title']
         repo = data['repository']['name']
-        user = issue['sender']['login']
+        user = data['sender']['login']
 
         return ("{event} {user} {action} issue in {repo}: {title} ({url})".format(
             event=fmt_event("issues"),
