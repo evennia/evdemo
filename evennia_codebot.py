@@ -337,7 +337,7 @@ class WebHookServer(Resource):
         repo = data['repository']['name']
         sender = data['sender']['login']
         if ref_type == 'branch':
-            url = data['html_url'] + "/tree/" + ref  # github branch url
+            url = data['repository']['html_url'] + "/tree/" + ref  # github branch url
             return ("{event} {user} created new branch {repo}/{branch} {url}".format(
                     event=fmt_event("create"),
                     user=sender,
@@ -353,7 +353,7 @@ class WebHookServer(Resource):
                     ref=fmt_branch(ref),
                     url=fmt_url(url)))
         if ref_type == 'repository':
-            url = data['html_url']
+            url = data['repository']['html_url']
             return ("{event} {user} created new repository {repo} {url}".format(
                     event=fmt_event("create"),
                     user=sender,
