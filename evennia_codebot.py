@@ -345,7 +345,7 @@ class WebHookServer(Resource):
                     branch=fmt_branch(ref),
                     url=fmt_url(url)))
         if ref_type == 'tag':
-            url = data['repositoryl']['tags_url']
+            url = data['repository']['tags_url']
             return ("{event} {user} added new tag {repo}/{ref} {url}".format(
                     event=fmt_event("create"),
                     user=sender,
