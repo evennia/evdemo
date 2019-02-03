@@ -1,23 +1,28 @@
 #! /usr/bin/python
 # Copyright (c) 2009 Steven Robertson.
-#           (c) 2010-2016 Griatch
+#           (c) 2010-2019 Griatch
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or
 # later, as published by the Free Software Foundation.
 
 """
-Evennia codebot system
+Evennia codebot system and github webhook server
 
-This is a central bot for relaying data about the Evennnia
-development (www.evennia.com).
+This is a central bot for relaying data about the Evennia development
+(www.evennia.com). It's originally based on a part of Steven Robertson's
+"googlecode-irc-bot" (https://github.com/jmhobbs/googlecode-irc-bot) which was
+for the old google-code site. Since then it was heavily reworked and modified
+for use with the Evennia project and updated to work with github.
 
-- logs #evennia IRC channel to logfile
-- echoes RSS feed updates (code, blog, forum, issues) to #evennia
-- posts the IRC log regularly to Evennia mailing list
+- logs IRC channel to logfile (access to it by talking to the bot)
+- parse github webhooks to get relevant events, echoes to IRC channel
+- parse RSS feeds from blog/forum, echoes to IRC channel
+- posts the IRC log regularly to Evennia mailing list (disabled, it was pretty spammy)
 
-The bot uses threading to avoid lockups when loading very
-slow RSS urls (this used to cause it to time out)
+The bot uses threading to avoid lockups when loading very slow RSS urls (this
+used to cause it to time out). It implements a subset of the github webhooks in
+order to report them to IRC.
 
 """
 __version__ = "0.6"
@@ -132,6 +137,13 @@ def fmt_sequence(seq, length=4):
 
 
 class WebHookServer(Resource):
+    """
+    The webhook server sits on a port and listens for POST requests from a webhook
+    set up on github to point to the server with this server. Supported events are
+    parsed and passed to the ircbot. Each `_parse_*` method parses an event with that
+    specific name.
+
+    """
     isLeaf = True
 
     def __init__(self, ircbot, secret=None):
@@ -184,6 +196,7 @@ class WebHookServer(Resource):
     # event parsers
 
     def _parse_default(self, data):
+        "Fallback for debugging"
         return str(data)
 
     def _parse_ping(self, data):
@@ -488,6 +501,7 @@ class WebHookServer(Resource):
             except Exception:
                 report(traceback.format_exc(30))
         else:
+            # we log this to see if we missed something
             report("Webhook event '{}' lacks a parser.".format(event))
 
     def render_POST(self, request):
