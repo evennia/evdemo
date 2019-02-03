@@ -201,6 +201,10 @@ class WebHookServer(Resource):
         compare_url = data['compare']
         raw_commits = data['commits']
         ncommits = len(raw_commits)
+        if not ncommits:
+            # this can happen on empty branch creation etc; ignore this event if so
+            return
+
         raw_commits = fmt_sequence(raw_commits, _show_number)
 
         commits = []
@@ -246,7 +250,7 @@ class WebHookServer(Resource):
             text=text,
             url=fmt_url(url))
 
-    def _parse_gollum(self, data):
+    def _parse_gollum(self, data):  # wiki edits
         _show_number = 4  # must be even
 
         repo = data['repository']['name']
