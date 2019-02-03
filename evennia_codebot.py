@@ -376,10 +376,10 @@ class WebHookServer(Resource):
         text = fmt_crop(project['body'])
         user = data['sender']['login']
 
-        return ("{event} {user} {action} project {name} in {repo}: {text} {url}".format(
+        return ("{event} {user} {action} project \"{name}\" in {repo}: {text} {url}".format(
             event=fmt_event("project"),
             user=user,
-            action=action,
+            action=fmt_path(action),
             name=name,
             repo=fmt_repo(repo),
             text=text,
