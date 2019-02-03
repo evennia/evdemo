@@ -340,6 +340,7 @@ class WebHookServer(Resource):
         ref_type = data['ref_type']
         repo = data['repository']['name']
         sender = data['sender']['login']
+
         if ref_type == 'branch':
             url = data['repository']['html_url'] + "/tree/" + ref  # github branch url
             return ("{event} {user} created new branch {repo}/{branch} {url}".format(
@@ -348,7 +349,7 @@ class WebHookServer(Resource):
                     repo=fmt_repo(repo),
                     branch=fmt_branch(ref),
                     url=fmt_url(url)))
-        if ref_type == 'tag':
+        elif ref_type == 'tag':
             url = data['repository']['tags_url']
             return ("{event} {user} added new tag {repo}/{ref} {url}".format(
                     event=fmt_event("create"),
@@ -356,13 +357,31 @@ class WebHookServer(Resource):
                     repo=fmt_repo(repo),
                     ref=fmt_branch(ref),
                     url=fmt_url(url)))
-        if ref_type == 'repository':
+        elif ref_type == 'repository':
             url = data['repository']['html_url']
             return ("{event} {user} created new repository {repo} {url}".format(
                     event=fmt_event("create"),
                     user=sender,
                     repo=fmt_repo(repo),
                     url=fmt_url(url)))
+
+    def _parse_project(self, data):
+        action = data['action']
+        #if action in ('edited',):
+        #    return None
+
+        url = data['html_url']
+        name = data['name']
+        user = data['sender']['login']
+        text = fmt_crop(data['body'])
+
+        return ("{event} {user} {action} project {name}: {text} {url}".format(
+            event=fmt_event("project"),
+            user=user,
+            action=action,
+            name=name,
+            text=text,
+            url=fmt_url(url)))
 
     # entrypoints
 
