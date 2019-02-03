@@ -307,7 +307,7 @@ class WebHookServer(Resource):
             action=fmt_path(action),
             number=fmt_path(issue_num),
             repo=fmt_repo(repo),
-            title=title,
+            title=fmt_repo(title),
             url=fmt_url(url)))
 
     def _parse_issue_comment(self, data):
@@ -330,9 +330,9 @@ class WebHookServer(Resource):
                     user=user,
                     action=action,
                     number=fmt_path(issue_num),
-                    title=issue_title,
+                    title=fmt_crop(issue_title),
                     repo=fmt_repo(repo),
-                    text=text,
+                    text=fmt_crop(text),
                     url=fmt_url(url)))
 
     def _parse_create(self, data):  # create branch/tag
@@ -417,6 +417,26 @@ class WebHookServer(Resource):
             head=fmt_branch(head),
             url=fmt_url(url)))
 
+    def _parse_pull_request_review(self, data):
+        action = data['action']
+        if action in ("edited", "dismissed"):
+            return None
+        review = data['review']
+        url = review['html_url']
+        text = review['body']
+        user = data['sender']['login']
+        pull_request = data['pull_request']
+        pr_number = pull_request['number']
+        pr_title = pull_request['title']
+
+        return ("{event} {user} reviewed PR #{num} ({title}): {text} {url}".format(
+            event=fmt_event("PR review"),
+            user=user,
+            num=fmt_path(pr_number),
+            title=fmt_crop(pr_title),
+            text=fmt_crop(text),
+            url=fmt_url(url)))
+
     def _parse_pull_request_review_comment(self, data):
         action = data['action']
         if action in ('edited', 'deleted'):
@@ -437,7 +457,7 @@ class WebHookServer(Resource):
                     user=user,
                     action=action,
                     number=fmt_path(pr_number),
-                    title=pr_title,
+                    title=fmt_crop(pr_title),
                     repo=fmt_repo(repo),
                     text=fmt_crop(text),
                     url=fmt_url(url)))
