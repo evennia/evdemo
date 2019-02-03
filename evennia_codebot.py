@@ -190,10 +190,16 @@ class WebHookServer(Resource):
         return str(data)
 
     def _parse_ping(self, data):
-        return "{event} zen: {zen}, hook_id: {hook_id}".format(
+        zen = data['zen']
+        name = data['hook']['name']
+        repo = data['repository']['name']
+        user = data['sender']['login']
+        return "{event} {user} connected webhook '{name}' to {repo}: zen: {zen}".format(
             event=fmt_event("ping"),
-            zen=data['zen'],
-            hook_id=clr(data['hook_id'], "red"))
+            user=user,
+            name=name,
+            repo=fmt_repo(repo),
+            zen=zen)
 
     def _parse_push(self, data):
         _show_number = 4  # how many commits to show per push. Must be even.
