@@ -321,7 +321,7 @@ class WebHookServer(Resource):
         issue_num = issue['number']
         comment = data['comment']
         url = comment['html_url']
-        user = comment['user']['login']
+        user = data['sender']['login']
         text = fmt_crop(comment['body'])
 
         return ("{event} {user} commented on issue "
@@ -391,6 +391,10 @@ class WebHookServer(Resource):
 
     def _parse_pull_request(self, data):
         action = data['action'].replace("_", "-")
+        if action in ('synchronize',):
+            # this would create a lot of spam
+            return None
+
         number = data['number']
         pull_request = data['pull_request']
         url = pull_request['html_url']
@@ -419,23 +423,23 @@ class WebHookServer(Resource):
             # avoid spam when editing comments
             return None
         repo = data['repository']['name']
-        issue = data['issue']
-        issue_title = issue['title']
-        issue_num = issue['number']
+        pull_request = data['pull_request']
+        pr_title = pull_request['title']
+        pr_number = pull_request['number']
         comment = data['comment']
         url = comment['html_url']
-        user = comment['user']['login']
-        text = fmt_crop(comment['body'])
+        user = data['sender']['login']
+        text = comment['body']
 
         return ("{event} {user} {action} review comment on PR "
                 "#{number} ({title}) for {repo}: {text} ({url})".format(
                     event=fmt_event("PR review"),
                     user=user,
                     action=action,
-                    number=fmt_path(issue_num),
-                    title=issue_title,
+                    number=fmt_path(pr_number),
+                    title=pr_title,
                     repo=fmt_repo(repo),
-                    text=text,
+                    text=fmt_crop(text),
                     url=fmt_url(url)))
 
     # entrypoints
