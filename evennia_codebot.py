@@ -331,6 +331,35 @@ class WebHookServer(Resource):
                     text=text,
                     url=fmt_url(url)))
 
+    def _parse_create(self, data):  # create branch/tag
+        ref = data['ref']
+        ref_type = data['ref_type']
+        repo = data['repository']['name']
+        sender = data['sender']['login']
+        if ref_type == 'branch':
+            url = data['html_url'] + "/tree/" + ref  # github branch url
+            return ("{event} {user} created new branch {repo}/{branch} {url}".format(
+                    event=fmt_event("create"),
+                    user=sender,
+                    repo=fmt_repo(repo),
+                    branch=fmt_branch(ref),
+                    url=fmt_url(url)))
+        if ref_type == 'tag':
+            url = data['repositoryl']['tags_url']
+            return ("{event} {user} added new tag {repo}/{ref} {url}".format(
+                    event=fmt_event("create"),
+                    user=sender,
+                    repo=fmt_repo(repo),
+                    ref=fmt_branch(ref),
+                    url=fmt_url(url)))
+        if ref_type == 'repository':
+            url = data['html_url']
+            return ("{event} {user} created new repository {repo} {url}".format(
+                    event=fmt_event("create"),
+                    user=sender,
+                    repo=fmt_repo(repo),
+                    url=fmt_url(url)))
+
     # entrypoints
 
     def handle_event(self, event, data):
