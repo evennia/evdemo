@@ -369,17 +369,19 @@ class WebHookServer(Resource):
         action = data['action']
         #if action in ('edited',):
         #    return None
-
-        url = data['html_url']
-        name = data['name']
+        repo = data['repository']['name']
+        project = data['project']
+        url = project['html_url']
+        name = project['name']
+        text = fmt_crop(project['body'])
         user = data['sender']['login']
-        text = fmt_crop(data['body'])
 
-        return ("{event} {user} {action} project {name}: {text} {url}".format(
+        return ("{event} {user} {action} project {name} in {repo}: {text} {url}".format(
             event=fmt_event("project"),
             user=user,
             action=action,
             name=name,
+            repo=fmt_repo(repo),
             text=text,
             url=fmt_url(url)))
 
