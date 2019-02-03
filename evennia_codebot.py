@@ -481,8 +481,6 @@ class WebHookServer(Resource):
         event_parser = self.event_parsers.get(event)  # , self._parse_default)
 
         if event_parser:
-            report("Parsing '{}' event using event_parser '{}'".format(
-                event, event_parser.__name__))
             try:
                 result = event_parser(data)
                 if result:
