@@ -322,7 +322,7 @@ class WebHookServer(Resource):
         comment = data['comment']
         url = comment['html_url']
         user = comment['user']['login']
-        text = fmt_crop(comment['body']) if action != 'deleted' else "<deleted>"
+        text = fmt_crop(comment['body'])
 
         return ("{event} {user} commented on issue "
                 "#{number} ({title}) in {repo}: {text} ({url})".format(
@@ -412,6 +412,31 @@ class WebHookServer(Resource):
             repo=fmt_repo(repo),
             head=fmt_branch(head),
             url=fmt_url(url)))
+
+    def _parse_pull_request_review_comment(self, data):
+        action = data['action']
+        if action in ('edited', 'deleted'):
+            # avoid spam when editing comments
+            return None
+        repo = data['repository']['name']
+        issue = data['issue']
+        issue_title = issue['title']
+        issue_num = issue['number']
+        comment = data['comment']
+        url = comment['html_url']
+        user = comment['user']['login']
+        text = fmt_crop(comment['body'])
+
+        return ("{event} {user} {action} review comment on PR "
+                "#{number} ({title}) for {repo}: {text} ({url})".format(
+                    event=fmt_event("PR review"),
+                    user=user,
+                    action=action,
+                    number=fmt_path(issue_num),
+                    title=issue_title,
+                    repo=fmt_repo(repo),
+                    text=text,
+                    url=fmt_url(url)))
 
     # entrypoints
 
