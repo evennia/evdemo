@@ -395,7 +395,7 @@ class WebHookServer(Resource):
         pull_request = data['pull_request']
         url = pull_request['html_url']
         repo = data['repository']['name']
-        head = pull_request['ref']
+        head = pull_request['head']['ref']
         title = pull_request['title']
         merged = pull_request['merged_at']
         user = data['sender']['login']
@@ -403,7 +403,7 @@ class WebHookServer(Resource):
         if action == 'closed':
             action = 'merged' if merged else 'closed (no merge)'
 
-        return ("{event} {user} {action} PR #{num} ({title}) off {repo}/{head} {url}".format(
+        return ("{event} {user} {action} PR #{num} ({title}) to {repo}/{head} {url}".format(
             event=fmt_event("pull request"),
             user=user,
             action=fmt_path(action),
