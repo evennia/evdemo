@@ -477,7 +477,7 @@ class WebHookServer(Resource):
             try:
                 result = event_parser(data)
                 if result:
-                    # if not a result, this may be a non-echoable event
+                    # we ignore certain sub-parts of events
                     self.ircbot.bot.trysay(result)
             except AttributeError:
                 if self.ircbot.bot is None:
