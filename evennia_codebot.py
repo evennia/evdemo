@@ -49,11 +49,6 @@ from twisted.python import log
 #  Print nice log messages
 # ------------------------------------------------------------
 
-def make_iter(obj):
-    "Make incoming object iterable"
-    return obj if hasattr(obj, '__iter__') else [obj]
-
-
 def report(text):
     "Pretty-print the activity of the system"
     timestamp = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime(time.time()))
@@ -61,15 +56,10 @@ def report(text):
 
 
 # ------------------------------------------------------------
-# IRC message formatting. For reference:
-# ------------------------------------------------------------
+# IRC message formatting
+# -----------------------------------------------------------
 
-# \002 bold \003 color \017 reset \026 italic/reverse \037 underline
-# 0 white 1 black 2 dark blue 3 dark green
-# 4 dark red 5 brownish 6 dark purple 7 orange
-# 8 yellow 9 light green 10 dark teal 11 light teal
-# 12 light blue 13 light purple 14 dark gray 15 light gray
-
+# IRC colors (mIRC)
 CLR = {"bold": "\002",
        "color": "\003",
        "reset": "\017",
@@ -947,7 +937,7 @@ if __name__ == '__main__':
     bot_nickname = "evenniacode"
     irc_network = "irc.freenode.net"
     irc_port = 6667
-    irc_channel = "#evennia-test"
+    irc_channel = "#evennia"
 
     # RSS feeds
     rss_check_frequency = 10 * 60  # 10 minutes
