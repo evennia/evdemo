@@ -367,8 +367,9 @@ class WebHookServer(Resource):
 
     def _parse_project(self, data):
         action = data['action']
-        #if action in ('edited',):
-        #    return None
+        if action in ('edited',):
+            # avoid spam from edits
+            return None
         repo = data['repository']['name']
         project = data['project']
         url = project['html_url']
@@ -376,13 +377,32 @@ class WebHookServer(Resource):
         text = fmt_crop(project['body'])
         user = data['sender']['login']
 
-        return ("{event} {user} {action} project \"{name}\" in {repo}: {text} {url}".format(
+        return ("{event} {user} {action} project in {repo}: {name} - {text} {url}".format(
             event=fmt_event("project"),
             user=user,
             action=fmt_path(action),
             name=name,
             repo=fmt_repo(repo),
             text=text,
+            url=fmt_url(url)))
+
+    def _parse_project_card(self, data):
+        action = data['action']
+        if action in ('edited',):
+            # avoid spam from edits
+            return None
+        repo = data['repository']['name']
+        project_card = data['project_card']
+        url = project_card['url']
+        note = project_card['note']
+        user = data['sender']['login']
+
+        return ("{event} {user} {action} project card in {repo}: {note} {url}".format(
+            event=fmt_event("project card"),
+            user=user,
+            action=fmt_path(action),
+            repo=fmt_repo(repo),
+            note=fmt_crop(note),
             url=fmt_url(url)))
 
     # entrypoints
