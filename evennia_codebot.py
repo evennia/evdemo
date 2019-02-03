@@ -389,6 +389,30 @@ class WebHookServer(Resource):
     # TODO: Currently project_card API does not include http_urls nor a reference to
     # which project the card belongs to, making it useless for us at this time.
 
+    def _parse_pull_request(self, data):
+        action = data['action'].replace("_", "-")
+        number = data['number']
+        pull_request = data['pull_request']
+        url = pull_request['html_url']
+        repo = data['repository']['name']
+        head = pull_request['ref']
+        title = pull_request['title']
+        merged = pull_request['merged_at']
+        user = data['sender']['login']
+
+        if action == 'closed':
+            action = 'merged' if merged else 'closed (no merge)'
+
+        return ("{event} {user} {action} PR #{num} ({title}) off {repo}/{head} {url}".format(
+            event=fmt_event("pull request"),
+            user=user,
+            action=fmt_path(action),
+            num=fmt_path(number),
+            title=fmt_crop(title),
+            repo=fmt_repo(repo),
+            head=fmt_branch(head),
+            url=fmt_url(url)))
+
     # entrypoints
 
     def handle_event(self, event, data):
