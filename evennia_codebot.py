@@ -350,7 +350,7 @@ class WebHookServer(Resource):
                     branch=fmt_branch(ref),
                     url=fmt_url(url)))
         elif ref_type == 'tag':
-            url = data['repository']['tags_url']
+            url = data['repository']['html_url'] + "/releases"   # tags show on this page
             return ("{event} {user} added new tag {repo}/{ref} {url}".format(
                     event=fmt_event("create"),
                     user=sender,
@@ -386,24 +386,8 @@ class WebHookServer(Resource):
             text=text,
             url=fmt_url(url)))
 
-    def _parse_project_card(self, data):
-        action = data['action']
-        if action in ('edited',):
-            # avoid spam from edits
-            return None
-        repo = data['repository']['name']
-        project_card = data['project_card']
-        url = project_card['url']
-        note = project_card['note']
-        user = data['sender']['login']
-
-        return ("{event} {user} {action} project card in {repo}: {note} {url}".format(
-            event=fmt_event("project card"),
-            user=user,
-            action=fmt_path(action),
-            repo=fmt_repo(repo),
-            note=fmt_crop(note),
-            url=fmt_url(url)))
+    # TODO: Currently project_card API does not include http_urls nor a reference to
+    # which project the card belongs to, making it useless for us at this time.
 
     # entrypoints
 
