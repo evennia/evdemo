@@ -194,6 +194,7 @@ class WebHookServer(Resource):
         name = data['hook']['name']
         repo = data['repository']['name']
         user = data['sender']['login']
+
         return "{event} {user} connected webhook '{name}' to {repo}: zen: {zen}".format(
             event=fmt_event("ping"),
             user=user,
@@ -210,6 +211,7 @@ class WebHookServer(Resource):
         compare_url = data['compare']
         raw_commits = data['commits']
         ncommits = len(raw_commits)
+
         if not ncommits:
             # this can happen on empty branch creation etc; ignore this event if so
             return
@@ -249,14 +251,15 @@ class WebHookServer(Resource):
         line = comment['line']
         repo = data['repository']['name']
         author = comment['user']['login']
-        text = fmt_crop(comment['body'])
+        text = comment['body']
+
         return "{event} {author} commented on {path}, line {line} in {repo}: {text} ({url})".format(
             event=fmt_event("commit comment"),
             author=author,
             path=fmt_path(path),
             line=fmt_path(line),
             repo=fmt_repo(repo),
-            text=text,
+            text=fmt_crop(text),
             url=fmt_url(url))
 
     def _parse_gollum(self, data):  # wiki edits
@@ -275,7 +278,7 @@ class WebHookServer(Resource):
             else:
                 page_name = page['page_name']
                 title = page['title']
-                title = " ({})".format(title) if title != page_name else ""
+                title = " ({})".format(fmt_crop(title)) if title != page_name else ""
                 summary = ": {}".format(fmt_crop(page['summary'])) if page['summary'] else ""
                 action = page['action']
                 url = page['html_url']
@@ -331,7 +334,7 @@ class WebHookServer(Resource):
         comment = data['comment']
         url = comment['html_url']
         user = data['sender']['login']
-        text = fmt_crop(comment['body'])
+        text = comment['body']
 
         return ("{event} {user} commented on issue "
                 "#{number} ({title}) in {repo}: {text} ({url})".format(
