@@ -471,6 +471,20 @@ class WebHookServer(Resource):
                     text=fmt_crop(text),
                     url=fmt_url(url)))
 
+    def _parse_fork(self, data):
+        forkee = data['forkee']
+        private = " (to private repo)" if forkee['private'] else ""
+        name = forkee['name']
+        user = data['sender']['login']
+        url = forkee['html_url']
+
+        return ("{event} {user} forked {name}{private} {url}".format(
+            event=fmt_event("fork"),
+            user=user,
+            name=fmt_repo(name),
+            private=private,
+            url=fmt_url(url)))
+
     # entrypoints
 
     def handle_event(self, event, data):
