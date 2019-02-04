@@ -232,14 +232,14 @@ class WebHookServer(Resource):
                     url=fmt_url(url)))
 
         string = ("{event} {pusher} pushed {ncommits} commit{splural} to "
-                  "{repo}/{branch} ({compare_url}):{linebreak}{commits}".format(
+                  "{repo}/{branch}{compare_url}:{linebreak}{commits}".format(
                         event=fmt_event("push"),
                         pusher=pusher,
                         ncommits=ncommits,
                         splural="s" if ncommits > 1 else "",
                         repo=fmt_repo(repo),
                         branch=fmt_branch(branch),
-                        compare_url=fmt_url(compare_url),
+                        compare_url=" ({})".format(fmt_url(compare_url)) if ncommits > 1 else "",
                         linebreak="\n" if ncommits > 1 else "",
                         commits="\n".join(commits)))
         return string
