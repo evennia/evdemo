@@ -110,8 +110,7 @@ def fmt_crop(text, length=60):
     diff = nlen - length
     if nlen > length:
         text = "{txt}{postfix}".format(
-            txt=text[:length],
-            txt.strip("\ "),
+            txt=text[:length].strip("\ "),
             postfix=clr("[{} more]".format(diff) if diff > 10 else "[...]", 'grey'))
     return text
 
