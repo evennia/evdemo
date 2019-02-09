@@ -104,7 +104,8 @@ def fmt_path(msg):
 
 
 def fmt_crop(text, length=60):
-    "Crop text to given length"
+    "Crop text to given length and remove line breaks inside text"
+    text = re.sub(r"\n\r|\r\n|\r|\n", r"\\\\", text.strip())
     nlen = len(text)
     diff = nlen - length
     if nlen > length:
@@ -226,10 +227,10 @@ class WebHookServer(Resource):
                 author = commit['author']['name']
                 message = fmt_crop(commit['message'])
                 url = commit['url'][:-33]  # cut away most of the sha
-                commits.append(" [{author}]: {message} ({url})".format(
+                commits.append(" [{author}]: {message}".format(
                     author=author,
                     message=message,
-                    url=fmt_url(url)))
+                    url=fmt_url(url)))  # don't show url to shorten it
 
         string = ("{event} {pusher} pushed {ncommits} commit{splural} to "
                   "{repo}/{branch}{compare_url}:{linebreak}{commits}".format(
