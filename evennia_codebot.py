@@ -106,7 +106,7 @@ def fmt_path(msg):
 def fmt_crop(text, length=60):
     "Crop text to given length and remove line breaks inside text"
     nlen = len(text)
-    text = re.sub(r"\n\r|\r\n|\r|\n", r"\\ ", text.strip())
+    text = re.sub(r"\n\r|\r\n|\r|\n", r"\\", text.strip())
     diff = nlen - length
     if nlen > length:
         text = "{txt}{postfix}".format(
