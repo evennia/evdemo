@@ -23,6 +23,7 @@ several more options for customizing the Guest account system.
 """
 
 from evennia import DefaultAccount, DefaultGuest
+from .channels import Channel
 
 class Account(DefaultAccount):
     """
@@ -94,6 +95,25 @@ class Account(DefaultAccount):
     def at_account_creation(self):
         super(Account, self).at_account_creation()
         self.locks.add("noidletimeout:perm(Admin) or perm(noidletimeout)")
+
+    def at_first_login(self):
+        super(Account, self).at_first_login()
+        chan = Channel.objects.filter(db_key__iexact="public")
+        if chan:
+            chan[0].msg("|c{}|n just |gconnected|n to the Evennia demo for the first time!".format(self.key))
+            self.ndb.chan_greeting_done = True
+
+    def at_post_login(self, session):
+        super(Account, self).at_post_login(session)
+        chan = Channel.objects.filter(db_key__iexact="public")
+        if chan and not self.ndb.chan_greeting_done:
+            chan[0].msg("|c{}|n just |gconnected|n to the Evennia demo!".format(self.key))
+
+    def at_disconnect(self, reason=None, **kwargs):
+        chan = Channel.objects.filter(db_key__iexact="public")
+        if chan:
+            chan[0].msg("|c{}|n |rdisconnected|n from the Evennia demo.".format(self.key))
+        super(Account, self).at_disconnect()
 
 
 class Guest(DefaultGuest):
