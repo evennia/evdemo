@@ -67,6 +67,4 @@ up
 @typeclass here = rooms.RestrictedRoom
 #
 say Now run: @irc2chan public = irc.freenode.net 6667 #evennia evdemo
-#
-say Finally, run: @batchcommand contrib.tutorial_world.build
 
