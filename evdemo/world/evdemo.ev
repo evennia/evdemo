@@ -8,8 +8,7 @@
 @desc
 Welcome to the |gEvennia|n (www.evennia.com) demo! Use |wpublic <message>|n to chat to
 developers (be patient if you don't get answers right away). If you wonder what this is,
-try to enter |whelp <topic>|n, such as |whelp chat|n, |wcommands|n, |nevennia|n,
-|wmud|n, |wtutorial|n etc.
+try to enter |whelp <topic>|n, such as |whelp chat|n, |wcommands|n, |nevennia|n, |wmud|n, |wtutorial|n etc.
 
 The |gTutorial|n is a small single-player quest in classic fantasy style. Use the |wtutorial|n
 command to get more info about what is going on behind the scenes.
