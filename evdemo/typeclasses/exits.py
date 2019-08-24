@@ -7,6 +7,7 @@ for allowing Characters to traverse the exit to its destination.
 
 """
 from evennia import DefaultExit
+from evscaperoom.commands import CmdEvscapeRoomStart
 
 class Exit(DefaultExit):
     """
@@ -34,3 +35,7 @@ class Exit(DefaultExit):
                                         defined, in which case that will simply be echoed.
     """
     pass
+
+
+class EvscaperoomExit(Exit):
+    exit_command = CmdEvscapeRoomStart

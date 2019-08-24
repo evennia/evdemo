@@ -5,18 +5,112 @@
 
 @tel #2
 #
-@desc Welcome to the |gEvennia|n (www.evennia.com) demo! Use |wpublic <message>|n
-to chat to developers (be patient if you don't get answers right away). 
+@desc
+Welcome to the |gEvennia|n (www.evennia.com) demo! Use |wpublic <message>|n to chat to
+developers (be patient if you don't get answers right away). If you wonder what this is,
+try to enter |whelp <topic>|n, such as |whelp chat|n, |wcommands|n, |nevennia|n,
+|wmud|n, |wtutorial|n etc.
 
-The |gtutorial|n is a small single-player quest. You have been given Builder
-privileges to learn what is going on behind the scenes (this is why you see the #nums 
-of objects), but please only test-build new stuff in the |ySandbox|n to keep
-things clean. Use `quell` to play as a normal player.
+The |gTutorial|n is a small single-player quest in classic fantasy style. Use the |wtutorial|n
+command to get more info about what is going on behind the scenes.
+
+The |gEvscaperoom|n is a more unusual example of Evennia usage: A multiplayer "escape room"
+with a complete and (maybe surprisingly) deep story. This has no tutorial components - just
+make sure to eat a piece of pie if you get stuck.
+
+You have been given Builder privileges on this demo (this is why you see the #nums of objects),
+but please only experiment and test-build new stuff in the |gSandbox|n to keep things clean.
+Use |wquell|n to play as a normal player.
 
 Be aware that this demo will reset without warning, at which point you'll need to recreate
-your account. If you want to lurk to follow dev discussions, note that you will time out 
-after a week. To avoid this, either partake in discussions, join the IRC channel (which links 
+your account. If you want to lurk to follow dev discussions, note that you will time out
+after a week. To avoid this, either partake in discussions, join the IRC channel (which links
 here) or use a telnet client and send the |widle|n command regularly.
+#
+# Set the help entries
+@sethelp evennia =
+|gEvennia|n is a library and server system for creating text-based multiplayer
+games (commonly known as MUDs or MU*). Evennia offers a very flexible framework
+for coding your game in the Python programming language. You can read more
+about Evennia at http://www.evennia.com.
+
+This is a demo server of Evennia running. It offers a small show-case of some
+of the very different game styles one can create.
+#
+@sethelp mud =
+A |gMUD|n, or Multi-User Dungeon, is the common name for text-based multiplayer games with
+a shared world. Different variations are MUSH, MUX, MOO etc, generally abbreviated as MU*.
+
+These games were the precursors to graphical MMO's and MMORPGs but are still played to
+this day. The experience is maybe best described as the difference between reading a book
+and watching a movie. Roleplaying and imagination can often take much more of a front row.
+
+From a development perspective, a MU* is much less resource demanding than its graphical
+counterpart. Importanly, creating text assets is also much cheaper than graphical assets.
+This means that a small team or even a single developer can realistically (if still with
+lot of work, no way around that!) create, run and maintain a MU* of exceptional depth and
+quality.
+#
+@sethelp tutorial =
+The |gTutorial World|n is a classic fantasy quest to recover a lost mythical weapon. Whereas
+it is mainly a single-player adventure, other players will also co-exist in the same game
+and can be encountered on the way.
+
+Use the |wtutorial|n command to get insight about what is happening behind the scenes. If
+you end up in a dark place, just be patient and search around - you will eventually find
+something to help light your way.
+#
+@sethelp evscaperoom =
+The |gEvscaperoom|n is what it sounds like - an "Escape Room" in text. This is an example of
+a more unusual style of online gameplay possible with Evennia. Evscaperoom was the winning
+entry for a game-jam with the theme of "one room" in Spring of 2019. Development took less
+than a month in total.
+
+The room can be solved alone, but also together with others. Try to read the text carefully
+and if you get stuck, try eating a bit of pie from the plate by the door.
+#
+@sethelp chat =
+To chat with developers, you can enter the command |wpublic <message>|n, for example
+
+    |wpublic Hello there!|n
+
+You can also use just 'pub'. Usually people will reply but
+if not - hang around: We are spread out all across the globe and may simply not be awake
+or available at the moment.
+
+The demo is connected to the developer IRC channel #evennia on irc.freenode.net. If you
+don't get any reply you can also connect to there directly - just click the 'chat' link
+on www.evennia.com. There is also a Discord channel linked to IRC if you prefer that.
+#
+@sethelp commands =
+To control a MUD you need to enter |gcommands|n. The most common commands you'll use here
+in the demo are commands to view or interact with the world, such as |wlook|n or |wget|n.
+The |whelp|n command is an important ally to figure out what you can do.
+
+    |whelp|n
+
+This gives you a list of all available help topics.
+
+    |whelp general|n
+
+This will list all general commands. To get more info about, say, the |wlook|n command, try
+
+    |whelp look|n
+
+You have Builder-permissions on this demo server, which means you can build and create
+new objects as well as examine their technical underpinnings in detail. Use
+
+    |whelp Building|n
+
+to get some ideas of the commands you can try. But please only build new things in the
+|gSandbox|n area so as to keep things clean!
+#
+@sethelp limbo =
+The |wLimbo|n is the start room of the demo. You can make no changes here so many builder
+commands don't work. Go to the |gSandbox|n to experiment.
+# The evscaperoom-exit leads back here since @open requires a destination.
+# Actually, its exit-command itself starts the Evscaperoom menu.
+@open evscaperoom:typeclasses.exits.EvscaperoomExit = here
 #
 @dig Sandbox = sandbox,back to limbo;back;limbo
 #
@@ -24,7 +118,7 @@ here) or use a telnet client and send the |widle|n command regularly.
 #
 sandbox
 #
-@desc This is a vast area of sweeping sand, ready for shaping. A |gPalm tree|n offers some 
+@desc This is a vast area of sweeping sand, ready for shaping. A |gPalm tree|n offers some
 shade. A large chunk of |335Rock|n seems to have some sort of inscription on it.
 #
 @lock here = edit:perm(Admin)
@@ -33,9 +127,9 @@ shade. A large chunk of |335Rock|n seems to have some sort of inscription on it.
 #
 @create/drop large chunk of rock;rock;chunk;large
 #
-@desc rock = This is a large chunk of rock sticking out of the sand. It is inscribed with 
-the text |335Evennia sandbox - experiment with building here!|n There is a smaller text 
-underneath that adds: |355This demo is just using the bare-bone default command set. See the manual 
+@desc rock = This is a large chunk of rock sticking out of the sand. It is inscribed with
+the text |335Evennia sandbox - experiment with building here!|n There is a smaller text
+underneath that adds: |355This demo is just using the bare-bone default command set. See the manual
 and ask on the public channel if you have any questions.|n
 #
 @lock rock = edit:perm(Admin);get:false()
