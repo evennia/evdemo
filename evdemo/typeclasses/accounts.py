@@ -115,6 +115,15 @@ class Account(DefaultAccount):
             chan[0].msg("|c{}|n |rdisconnected|n from the Evennia demo.".format(self.key))
         super(Account, self).at_disconnect()
 
+    @classmethod
+    def create(cls, *args, **kwargs):
+        acct, errs = DefaultAccount.create(*args, **kwargs)
+        char = acct.db._last_puppet
+        if char:
+            char.permissions.clear()
+            char.permissions.add("Player")
+        return acct, errs
+
 
 class Guest(DefaultGuest):
     """

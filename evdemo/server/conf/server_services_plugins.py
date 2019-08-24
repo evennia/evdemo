@@ -14,13 +14,10 @@ services are started last in the Server startup process.
 
 """
 
-from evennia.contrib.egi_client import EvenniaGameIndexService
-
 def start_plugin_services(server):
     """
     This hook is called by Evennia, last in the Server startup process.
 
     server - a reference to the main server application.
     """
-    egi_service = EvenniaGameIndexService()
-    server.services.addService(egi_service)
+    pass

@@ -8,10 +8,10 @@
 @desc Welcome to the |gEvennia|n (www.evennia.com) demo! Use |wpublic <message>|n
 to chat to developers (be patient if you don't get answers right away). 
 
-The |gtutorial|n is a small single-player quest. You have been given Builder privileges
-to learn what is going on behind the scenes but please only test-build new stuff in the
-|ySandbox|n to keep things clean. The |rTutorial|n is a small single-player quest to see
-some of Evennia's possibilities.
+The |gtutorial|n is a small single-player quest. You have been given Builder
+privileges to learn what is going on behind the scenes (this is why you see the #nums 
+of objects), but please only test-build new stuff in the |ySandbox|n to keep
+things clean. Use `quell` to play as a normal player.
 
 Be aware that this demo will reset without warning, at which point you'll need to recreate
 your account. If you want to lurk to follow dev discussions, note that you will time out 

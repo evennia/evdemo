@@ -49,7 +49,7 @@ IRC_ENABLED = True
 #LOCKDOWN_MODE = True
 
 
-GAME_DIRECTORY_LISTING = {
+GAME_INDEX_LISTING = {
     'game_status': 'launched',
     'game_website': 'http://silvren.com:4281',
     'listing_contact': 'a@a.com',
