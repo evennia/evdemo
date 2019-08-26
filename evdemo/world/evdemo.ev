@@ -7,24 +7,18 @@
 #
 @desc
 Welcome to the |gEvennia|n (www.evennia.com) demo! Use |wpublic <message>|n to chat to
-developers (be patient if you don't get answers right away). If you wonder what this is,
-try to enter |whelp <topic>|n, such as |whelp chat|n, |wcommands|n, |nevennia|n, |wmud|n, |wtutorial|n etc.
+developers (be patient if you don't get answers right away). For help, try |whelp <topic>|n, 
+such as |whelp chat|n, |wcommands|n, |nevennia|n, |wmud|n, |wtutorial|n etc.
 
-The |gTutorial|n is a small single-player quest in classic fantasy style. Use the |wtutorial|n
-command to get more info about what is going on behind the scenes.
-
-The |gEvscaperoom|n is a more unusual example of Evennia usage: A multiplayer "escape room"
-with a complete and (maybe surprisingly) deep story. This has no tutorial components - just
-make sure to eat a piece of pie if you get stuck.
+The |gTutorial|n is a small single-player quest in classic fantasy style. 
+The |gEvscaperoom|n is a multiplayer "escape room" with a complete and (maybe surprisingly) 
+deep story. This has no tutorial components - just make sure to eat a piece of pie if you get stuck.
 
 You have been given Builder privileges on this demo (this is why you see the #nums of objects),
 but please only experiment and test-build new stuff in the |gSandbox|n to keep things clean.
 Use |wquell|n to play as a normal player.
 
-Be aware that this demo will reset without warning, at which point you'll need to recreate
-your account. If you want to lurk to follow dev discussions, note that you will time out
-after a week. To avoid this, either partake in discussions, join the IRC channel (which links
-here) or use a telnet client and send the |widle|n command regularly.
+Be aware that this demo will reset without warning, at which point you'll need to recreate your account.
 #
 # Set the help entries
 @sethelp evennia =
