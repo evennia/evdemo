@@ -118,10 +118,11 @@ class Account(DefaultAccount):
     @classmethod
     def create(cls, *args, **kwargs):
         acct, errs = DefaultAccount.create(*args, **kwargs)
-        char = acct.db._last_puppet
-        if char:
-            char.permissions.clear()
-            char.permissions.add("Player")
+        if acct:
+            char = acct.db._last_puppet
+            if char:
+                char.permissions.clear()
+                char.permissions.add("Player")
         return acct, errs
 
 

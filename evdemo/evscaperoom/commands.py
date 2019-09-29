@@ -258,7 +258,7 @@ class CmdWho(CmdEvscapeRoom, default_cmds.CmdWho):
         caller = self.caller
 
         if self.args == 'all':
-            table = self.style_table("|wName", "|wRoom")
+            table = self.styled_table("|wName", "|wRoom")
             sessions = SESSION_HANDLER.get_sessions()
             for session in sessions:
                 puppet = session.get_puppet()
