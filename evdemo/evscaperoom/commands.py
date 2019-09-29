@@ -479,7 +479,7 @@ class CmdRerouter(default_cmds.MuxCommand):
     # cmdset (we want to keep most of them).
 
     key = "open"
-    aliases = ["@dig", "@open"]
+    aliases = ["dig", "open"]
 
     def func(self):
         # reroute to another command
