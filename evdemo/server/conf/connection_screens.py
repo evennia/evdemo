@@ -20,9 +20,8 @@ from evennia import utils
 
 CONNECTION_SCREEN = \
 """|b==============================================================|n
- Welcome to the demo install of Evennia |g%s|n,
+ Welcome to the demo install of Evennia - |g%s|n,
  currently running version %s!
- (generously hosted by Jarin at silvren.com - Thanks!)
 
  This demo instance may reset without warning, in which case
  you will have to recreate your account.

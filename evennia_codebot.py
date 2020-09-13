@@ -25,7 +25,7 @@ used to cause it to time out). It implements a subset of the github webhooks in
 order to report them to IRC.
 
 """
-__version__ = "0.6"
+__version__ = "0.7"
 
 import time
 import re
