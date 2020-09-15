@@ -25,6 +25,12 @@ several more options for customizing the Guest account system.
 from evennia import DefaultAccount, DefaultGuest
 from .channels import Channel
 
+try:
+    _PUBLIC_CHANNEL = Channel.objects.get(db_key__iexact="public")
+except Channel.DoesNotExist:
+    _PUBLIC_CHANNEL = None
+
+
 class Account(DefaultAccount):
     """
     This class describes the actual OOC account (i.e. the user connecting
@@ -93,27 +99,24 @@ class Account(DefaultAccount):
 
     """
     def at_account_creation(self):
-        super(Account, self).at_account_creation()
+        super().at_account_creation()
         self.locks.add("noidletimeout:perm(Admin) or perm(noidletimeout)")
 
     def at_first_login(self):
-        super(Account, self).at_first_login()
-        chan = Channel.objects.filter(db_key__iexact="public")
-        if chan:
-            chan[0].msg("|c{}|n just |gconnected|n to the Evennia demo for the first time!".format(self.key))
+        super().at_first_login()
+        if _PUBLIC_CHANNEL:
+            _PUBLIC_CHANNEL.msg("|c{}|n just |gconnected|n to the Evennia demo for the first time!".format(self.key))
             self.ndb.chan_greeting_done = True
 
     def at_post_login(self, session):
-        super(Account, self).at_post_login(session)
-        chan = Channel.objects.filter(db_key__iexact="public")
-        if chan and not self.ndb.chan_greeting_done:
-            chan[0].msg("|c{}|n just |gconnected|n to the Evennia demo!".format(self.key))
+        super().at_post_login(session)
+        if _PUBLIC_CHANNEL and not self.ndb.chan_greeting_done:
+            _PUBLIC_CHANNEL.msg("|c{}|n just |gconnected|n to the Evennia demo!".format(self.key))
 
     def at_disconnect(self, reason=None, **kwargs):
-        chan = Channel.objects.filter(db_key__iexact="public")
-        if chan:
-            chan[0].msg("|c{}|n |rdisconnected|n from the Evennia demo.".format(self.key))
-        super(Account, self).at_disconnect()
+        if _PUBLIC_CHANNEL:
+            _PUBLIC_CHANNEL.msg("|c{}|n |rdisconnected|n from the Evennia demo.".format(self.key))
+        super().at_disconnect()
 
     @classmethod
     def create(cls, *args, **kwargs):
