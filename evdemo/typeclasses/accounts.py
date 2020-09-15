@@ -113,20 +113,15 @@ class Account(DefaultAccount):
         if _PUBLIC_CHANNEL and not self.ndb.chan_greeting_done:
             _PUBLIC_CHANNEL.msg("|c{}|n just |gconnected|n to the Evennia demo!".format(self.key))
 
+        char = self.db._last_puppet
+        if char:
+            char.permissions.clear()
+            char.permissions.add("Player")
+
     def at_disconnect(self, reason=None, **kwargs):
         if _PUBLIC_CHANNEL:
             _PUBLIC_CHANNEL.msg("|c{}|n |rdisconnected|n from the Evennia demo.".format(self.key))
         super().at_disconnect()
-
-    @classmethod
-    def create(cls, *args, **kwargs):
-        acct, errs = DefaultAccount.create(*args, **kwargs)
-        if acct:
-            char = acct.db._last_puppet
-            if char:
-                char.permissions.clear()
-                char.permissions.add("Player")
-        return acct, errs
 
 
 class Guest(DefaultGuest):
