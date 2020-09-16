@@ -54,20 +54,6 @@ IRC_ENABLED = True
 #LOCKDOWN_MODE = True
 DEBUG=True
 
-
-GAME_INDEX_LISTING = {
-    'game_status': 'launched',
-    'game_website': 'http://silvren.com:4281',
-    'listing_contact': 'a@a.com',
-    'telnet_hostname': 'silvren.com',
-    'telnet_port': 4280,
-    'web_client_url': 'http://silvren.com:4281/webclient',
-    'short_description': "The Evennia demo server",
-    'long_description':'The Evennia demo server shows off a standard install of Evennia. People can play around as builders and explore some of the functi    onality. You can chat to deveopers in the Evennia IRC channel directly from the demo. Max idle time is seven days and the demo may be reset without notice,     at which point you need to recreate your account.'
-    }
-
-
-
 ######################################################################
 # Django web features
 ######################################################################
@@ -78,3 +64,10 @@ GAME_INDEX_LISTING = {
 # log out all active web browsing sessions. Game web client sessions
 # may survive.
 SECRET_KEY = 'H/,^%v)xx6+_7.ddddjTiR;BK*]-u$"fEMZF(w`[2=j&nV'
+
+
+try:
+    # Created by the `evennia connections` wizard
+    from .connection_settings import *
+except ImportError:
+    pass
