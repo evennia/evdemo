@@ -45,6 +45,80 @@ class CmdNoLimbo(default_cmds.MuxCommand):
                         "Go to the |ySandbox| to experiment and get all build commands.")
 
 
+class CmdTap(BaseCommand):
+    """
+    Inspect character actions for debug purposes.
+
+    Usage:
+        tap <object or #dbref>
+        untap
+
+    """
+    key = "tap"
+    aliases = ["untap"]
+    locks = "cmd:superuser()"
+
+    def parse(self):
+        self.args = self.args.strip()
+
+    def func(self):
+
+        caller = self.caller
+
+        if self.cmdname == "untap":
+            if caller.ndb.tapped_data:
+                targetsess, orig_data_in, orig_data_out = caller.ndb.tapped_data
+                targetsess.data_in = orig_data_in
+                targetsess.data_out = orig_data_out
+                caller.msg(f"|rUntapped {targetsess.account.name}.|n")
+                del caller.ndb.tapped_data
+            else:
+                caller.msg("No tap to untap.")
+            return
+
+        if not self.args:
+            caller.msg("Usage: tap <object or #dbref> or untap")
+            return
+
+        if caller.ndb.tapped_data:
+            targetsess, _, _ = caller.ndb.tapped_data
+            caller.msg(f"|rYou are already tapping {targetsess.account.name}. Untap first.")
+            return
+
+        target = caller.search(self.args, global_search=True)
+        if not target:
+            return
+        targetsess = target.sessions.get()[0]
+
+        def _patched_data_in(*args, **kwargs):
+            try:
+                text = kwargs["text"][0][0].strip('\n')
+            except (IndexError, KeyError, ValueError):
+                text = kwargs
+            taptxt = f"|wTAP|||g {targetsess.account.name} cmd:>|n '{text}'"
+            if text != 'idle':
+                caller.msg(taptxt)
+            targetsess.sessionhandler.call_inputfuncs(targetsess, **kwargs)
+
+        def _patched_data_out(*args, **kwargs):
+            try:
+                text = kwargs["text"]
+                if not isinstance(text, str):
+                    text = text[0]  # a tuple
+                text = text.strip("\n")
+                text = "|wTAP|||n " + "\n|wTAP|||n ".join(text.split("\n"))
+            except (IndexError, KeyError, ValueError):
+                text = kwargs
+            taptxt = f"|wTAP|||y {targetsess.account.name} sees:|n\n{text}"
+            caller.msg(taptxt)
+            targetsess.sessionhandler.data_out(targetsess, **kwargs)
+
+        # patch object with custom version
+        caller.ndb.tapped_data = (targetsess, targetsess.data_in, targetsess.data_out)
+        targetsess.data_in = _patched_data_in
+        targetsess.data_out = _patched_data_out
+
+        caller.msg(f"|gStart tapping {targetsess.account.name}...|n")
 
 #------------------------------------------------------------
 #

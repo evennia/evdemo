@@ -106,12 +106,14 @@ class Account(DefaultAccount):
         super().at_first_login()
         if _PUBLIC_CHANNEL:
             _PUBLIC_CHANNEL.msg("|c{}|n just |gconnected|n to the Evennia demo for the first time!".format(self.key))
+            self.msg("Welcome to the Evennia demo. Try writing `pub hello!` to chat! People will notice you if you are patient.")
             self.ndb.chan_greeting_done = True
 
     def at_post_login(self, session):
         super().at_post_login(session)
         if _PUBLIC_CHANNEL and not self.ndb.chan_greeting_done:
             _PUBLIC_CHANNEL.msg("|c{}|n just |gconnected|n to the Evennia demo!".format(self.key))
+            del self.ndb.chan_greeting_done
 
         char = self.db._last_puppet
         if char:
