@@ -26,6 +26,11 @@ _HELP_SUMMARY_TEXT = """
       surroundings for clues on how to escape. When you find something
       interesting, |wexamine|n it for any actions you could take with it.
    |yHow to explore ...|n
+      Use |wex <item>|n to look closer (focus) at an object. Further actions all 
+      act on the focused object. You will get a description which may contain 
+      |w[actions]|n you can take (just type the action), or further |y[details]|n 
+      or objects you can examine with |wex <detail>|n. Use |wex|n (or |wexamine|n) 
+      on its own to un-focus and go back to looking at the room.
     - |whelp [obj or command]|n           - get usage help (never puzzle-related)
     - |woptions|n                         - set game/accessibility options
     - |wlook/l [obj]|n                    - give things a cursory look.
