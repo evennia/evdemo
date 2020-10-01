@@ -84,7 +84,7 @@ def clr(txt, color=False, bold=False, italic=False, underline=False):
 # helpers
 
 def fmt_url(msg):
-    return f"<{clr(msg, 'blue', underline=True)}>"
+    return "<{}>".format(clr(msg, 'blue', underline=True))
 
 
 def fmt_event(event):
