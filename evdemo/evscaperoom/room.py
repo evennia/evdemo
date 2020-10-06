@@ -188,6 +188,17 @@ class EvscapeRoom(EvscaperoomObject, DefaultRoom):
         sum up the situation, set tags etc.
 
         """
+        if moved_obj.is_superuser:
+            string = ("|rWARNING: You are playing as superuser. Consider |wquell|ring if "
+                      "you want to \nexperience the game normally.|n")
+            string = "-" * 78 + "\n" + string + "\n" + "-" * 78
+            moved_obj.msg(string)
+        else:
+            # quell user
+            if moved_obj.account:
+                moved_obj.account.execute_cmd("quell")
+                moved_obj.msg("(Auto-quelling while in room)")
+
         if utils.inherits_from(moved_obj, "evennia.objects.objects.DefaultCharacter"):
             self.log(f"JOIN: {moved_obj} joined room")
             self.state.character_enters(moved_obj)
@@ -204,6 +215,9 @@ class EvscapeRoom(EvscaperoomObject, DefaultRoom):
             # after this move there'll be no more characters in the room - delete the room!
             self.delete()
             # logger.log_info("DEBUG: Don't delete room when last player leaving")
+        if moved_obj.account:
+            moved_obj.account.execute_cmd("unquell")
+
 
     def delete(self):
         """
