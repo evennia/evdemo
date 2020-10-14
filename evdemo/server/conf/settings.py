@@ -54,6 +54,12 @@ IRC_ENABLED = True
 #LOCKDOWN_MODE = True
 DEBUG=True
 
+GLOBAL_SCRIPTS = {
+    "Evscaperoom gc": {
+        'typeclass': "evscaperoom.scripts.CleanupScript"
+    }
+}
+
 ######################################################################
 # Django web features
 ######################################################################
