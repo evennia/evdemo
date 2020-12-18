@@ -9,7 +9,7 @@ GAME_INDEX_LISTING = \
     'long_description': 'The Evennia demo server shows off a standard install '
                         'of [Evennia](http://www.evennia.com), with a '
                         'single-player tutorial world as well as '
-                        'the *Evscaperoom* - a full story-rich escaperoom-style game!\n\n' 
+                        'the *Evscaperoom* - a full story-rich escaperoom-style game!\n\n'
                         'People can play around as builders and '
                         'explore some of Evennia\'s functionality. You can also chat '
                         'to developers in the Evennia IRC channel directly from '

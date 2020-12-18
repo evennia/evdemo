@@ -346,7 +346,7 @@ The *closet is locked with a lock that requires four digits. The rhyme seems to 
 """
 
 STATE_HINT_LVL3 = """
-If you read between the lines, how many people are *actually* in each stanza of the rhyme?
+If you read between the lines, how many people are -actually- in each stanza of the rhyme?
 """
 
 STATE_HINT_LVL4 = """
