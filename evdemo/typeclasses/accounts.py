@@ -106,14 +106,17 @@ class Account(DefaultAccount):
         super().at_first_login()
         if _PUBLIC_CHANNEL:
             _PUBLIC_CHANNEL.msg("|c{}|n just |gconnected|n to the Evennia demo for the first time!".format(self.key))
-            self.msg("Welcome to the Evennia demo. Try writing `pub hello!` to chat! People will notice you if you are patient.")
+            self.msg("|gWelcome to the Evennia demo. Try writing '|wpub hello!|g' to chat and ask questions! "
+                     "Please be patient for an answer.|n\n"
+                     "Your message will echo to the external Evennia support channels on IRC/Discord "
+                     "(so our answers may look like they are coming from a bot, but we are real people, promise!).")
             self.ndb.chan_greeting_done = True
 
     def at_post_login(self, session):
         super().at_post_login(session)
         if _PUBLIC_CHANNEL and not self.ndb.chan_greeting_done:
             _PUBLIC_CHANNEL.msg("|c{}|n just |gconnected|n to the Evennia demo!".format(self.key))
-            del self.ndb.chan_greeting_done
+        del self.ndb.chan_greeting_done
 
         char = self.db._last_puppet
         if char:
@@ -121,7 +124,7 @@ class Account(DefaultAccount):
             char.permissions.add("Player")
 
     def at_disconnect(self, reason=None, **kwargs):
-        if _PUBLIC_CHANNEL:
+        if _PUBLIC_CHANNEL and self.is_connected:
             _PUBLIC_CHANNEL.msg("|c{}|n |rdisconnected|n from the Evennia demo.".format(self.key))
         super().at_disconnect()
 
