@@ -26,7 +26,7 @@ class CleanupScript(DefaultScript):
     def at_repeat(self):
 
         for room in EvscapeRoom.objects.all():
-            if not room.get_all_characters():
-                # this room is empty
+            if not room.get_all_characters() and room.db.deleting:
+                # this room is empty and is marked for deleting
                 room.log("END: Room cleaned by garbage collector.")
                 room.delete()

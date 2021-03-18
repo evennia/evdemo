@@ -213,7 +213,8 @@ class EvscapeRoom(EvscaperoomObject, DefaultRoom):
             self.character_cleanup(moved_obj)
         if len(self.get_all_characters()) <= 1:
             # after this move there'll be no more characters in the room - delete the room!
-            self.delete()
+            # let the garbage-collection script remove this later
+            self.db.deleting = True
             # logger.log_info("DEBUG: Don't delete room when last player leaving")
         if moved_obj.account:
             moved_obj.account.execute_cmd("unquell")
@@ -224,7 +225,6 @@ class EvscapeRoom(EvscaperoomObject, DefaultRoom):
         Delete this room and all items related to it. Only move the players.
 
         """
-        self.db.deleting = True
         for char in self.get_all_characters():
             self.character_exit(char)
         for obj in self.contents:
