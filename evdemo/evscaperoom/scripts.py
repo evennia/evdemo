@@ -19,7 +19,7 @@ class CleanupScript(DefaultScript):
         self.key = "evscaperoom_cleanup"
         self.desc = "Cleans up empty evscaperooms"
 
-        self.interval = 60 * 15
+        self.interval = 3600 * 12
 
         self.persistent = True
 
