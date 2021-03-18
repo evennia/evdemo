@@ -9,7 +9,7 @@ from django.conf import settings
 from evennia import SESSION_HANDLER
 from evennia import Command, CmdSet, InterruptCommand, default_cmds
 from evennia import syscmdkeys, DefaultObject
-from evennia.utils import variable_from_module, list_to_string
+from evennia.utils import variable_from_module, list_to_string, inherits_from
 from .utils import create_evscaperoom_object
 
 _AT_SEARCH_RESULT = variable_from_module(*settings.SEARCH_AT_RESULT.rsplit('.', 1))
@@ -125,6 +125,10 @@ class CmdEvscapeRoom(Command):
             return None, query
 
         matches = self.caller.search(query, quiet=True)
+
+        if len(matches) > 1:
+            # prioritize in-room objects over characters
+            matches = [match for match in matches if not inherits_from("evennia.objects.objects.DefaultObject")]
 
         if not matches or len(matches) > 1:
             if required:
