@@ -489,6 +489,45 @@ class WebHookServer(Resource):
             private=private,
             url=fmt_url(url)))
 
+    def _parse_discussion(self, data):
+        action =   data['action']
+        if action in ('edited', 'pinned', 'unpinned', 'locked', 'unlocked', 'transferred', 'answered',
+                      'unanswered', 'deleted', 'category_changed'):
+            # avoid spam
+            return None
+
+        discussion = data['discussion']
+        category = discussion['category']['name']
+        title = discussion['title']
+        url = discussion['html_url']
+        user = data['sender']['login']
+        
+        return ("{event} {user} {action} '{title}' in {category} ({url})".format(
+            event=fmt_event("forum post"),
+            user=user,
+            action=action,
+            title=fmt_crop(title),
+            category=fmt_crop(category),
+            url=fmt_url(url)))
+
+    def _parse_discussion_comment(self, data):
+        action = data['action']
+        if action in ('edited', 'deleted'):
+            return None
+
+        discussion = data['discussion']
+        comment = data['comment']
+        url = comment['html_url'] 
+        title = discussion['title']
+        user = data['sender']['login']
+
+        return ("{event} {user} {action} comment to '{title}' ({url})".format(
+            event=fmt_event("forum comment"),
+            user=user,
+            action=action,
+            title=fmt_crop(title),
+            url=fmt_url(url)))
+
     # entrypoints
 
     def handle_event(self, event, data):
