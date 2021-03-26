@@ -26,10 +26,10 @@ _HELP_SUMMARY_TEXT = """
       surroundings for clues on how to escape. When you find something
       interesting, |wexamine|n it for any actions you could take with it.
    |yHow to explore ...|n
-      Use |wex <item>|n to look closer (focus) at an object. Further actions all 
-      act on the focused object. You will get a description which may contain 
-      |w[actions]|n you can take (just type the action), or further |y[details]|n 
-      or objects you can examine with |wex <detail>|n. Use |wex|n (or |wexamine|n) 
+      Use |wex <item>|n to look closer (focus) at an object. Further actions all
+      act on the focused object. You will get a description which may contain
+      |w[actions]|n you can take (just type the action), or further |y[details]|n
+      or objects you can examine with |wex <detail>|n. Use |wex|n (or |wexamine|n)
       on its own to un-focus and go back to looking at the room.
     - |whelp [obj or command]|n           - get usage help (never puzzle-related)
     - |woptions|n                         - set game/accessibility options
@@ -128,7 +128,7 @@ class CmdEvscapeRoom(Command):
 
         if len(matches) > 1:
             # prioritize in-room objects over characters
-            matches = [match for match in matches if not inherits_from("evennia.objects.objects.DefaultObject")]
+            matches = [match for match in matches if not inherits_from(match, "evennia.objects.objects.DefaultObject")]
 
         if not matches or len(matches) > 1:
             if required:
@@ -138,6 +138,8 @@ class CmdEvscapeRoom(Command):
                     _AT_SEARCH_RESULT(matches, self.caller, query=query)
                 raise InterruptCommand
             else:
+                if query:
+                    self.caller.msg(f"Found no '{query}' to examine. Maybe be more specific?")
                 return None, query
         else:
             return matches[0], None

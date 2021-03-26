@@ -503,7 +503,7 @@ class WebHookServer(Resource):
         user = data['sender']['login']
         
         return ("{event} {user} {action} '{title}' in {category} ({url})".format(
-            event=fmt_event("forum post"),
+            event=fmt_event("forum"),
             user=user,
             action=action,
             title=fmt_crop(title),
@@ -520,12 +520,13 @@ class WebHookServer(Resource):
         url = comment['html_url'] 
         title = discussion['title']
         user = data['sender']['login']
+        text = comment['body']
 
-        return ("{event} {user} {action} comment to '{title}' ({url})".format(
-            event=fmt_event("forum comment"),
+        return ("{event} {user} commented on '{title}': {text} ({url})".format(
+            event=fmt_event("forum"),
             user=user,
-            action=action,
             title=fmt_crop(title),
+            text=fmt_crop(text),
             url=fmt_url(url)))
 
     # entrypoints
@@ -566,7 +567,12 @@ class WebHookServer(Resource):
         if content is None:
             return ""
 
-        data = json.loads(content)
+        try:
+            data = json.loads(content)
+        except ValueError:
+            print("Failed to decode incoming content:\n{content}")
+            raise
+
         event = request.getHeader("X-GitHub-Event")
 
         self.handle_event(event, data)

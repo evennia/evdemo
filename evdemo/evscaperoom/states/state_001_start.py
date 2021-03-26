@@ -1193,7 +1193,8 @@ class Kitchen(objects.EvscaperoomObject):
             Bottle, key="bottle one", aliases=["bottle1", "bottle 1"],
             attributes=[
                 ("desc", BOTTLE_DESC1.strip()),
-                ("txt_smell", "roses"),
+                ("txt_smell_long", BOTTLE_SMELL_ONE.strip()),  # used when actively sniffing the bottle
+                ("txt_smell_short", "roses"),  # used when mixing, to show what smell is added
                 ("txt_ingredient", "a few drops from the first bottle"),
                 ("txt_color", "pink")])
         bottle1.set_flag("childmaker_ingredient_roses")
@@ -1201,7 +1202,8 @@ class Kitchen(objects.EvscaperoomObject):
             Bottle, key="bottle two", aliases=["bottle2", "bottle 2"],
             attributes=[
                 ("desc", BOTTLE_DESC2.strip()),
-                ("txt_smell", "earthy delight"),
+                ("txt_smell_long", BOTTLE_SMELL_TWO.strip()),
+                ("txt_smell_short", "earthy delight"),
                 ("txt_ingredient", "a few drops from the second bottle"),
                 ("txt_color", "purple")])
         bottle2.set_flag("childmaker_ingredient_arrogance")
@@ -1209,7 +1211,8 @@ class Kitchen(objects.EvscaperoomObject):
             Bottle, key="bottle three", aliases=["bottle3", "bottle 3"],
             attributes=[
                 ("desc", BOTTLE_DESC3.strip()),
-                ("txt_smell", "Father Death having gasses"),
+                ("txt_smell_long", BOTTLE_SMELL_THREE.strip()),
+                ("txt_smell_short", "Father Death having gasses"),
                 ("txt_ingredient", "a very small drop from the third bottle"),
                 ("txt_color", "brown-red")])
         bottle3.set_flag("childmaker_ingredient_rancid")
@@ -1217,7 +1220,8 @@ class Kitchen(objects.EvscaperoomObject):
             Bottle, key="bottle four", aliases=["bottle4", "bottle 4"],
             attributes=[
                 ("desc", BOTTLE_DESC4.strip()),
-                ("txt_smell", "clean air"),
+                ("txt_smell_long", BOTTLE_SMELL_FOUR.strip()),
+                ("txt_smell_short", "clean air"),
                 ("txt_ingredient", "a few drops from the fourth bottle"),
                 ("txt_color", "transparent")])
         bottle4.set_flag("childmaker_ingredient_stealth")
@@ -1225,7 +1229,8 @@ class Kitchen(objects.EvscaperoomObject):
             Bottle, key="bottle five", aliases=["bottle5", "bottle 5"],
             attributes=[
                 ("desc", BOTTLE_DESC5.strip()),
-                ("txt_smell", "loo"),
+                ("txt_smell_long", BOTTLE_SMELL_FIVE.strip()),
+                ("txt_smell_short", "loo"),
                 ("txt_ingredient", "a drop from the fifth bottle"),
                 ("txt_color", "yellow")])
         bottle5.set_flag("childmaker_ingredient_urine")
@@ -1293,7 +1298,8 @@ You uncork the second bottle. The contents has a rather pleasant, thick and eart
 """
 
 BOTTLE_SMELL_THREE = """
-Ew! The third bottle nearly makes you puke! Let's not smell that anymore!
+Ew! It smells like Father Death farted in this bottle! It nearly makes you puke!
+You hurriedly put the cork back on the third bottle.
 """
 
 BOTTLE_SMELL_FOUR = """
@@ -1303,7 +1309,7 @@ this one is only water?
 
 BOTTLE_SMELL_FIVE = """
 You open the fifth bottle but immediately close it again, nose wrinkled. It's a
-very familiar smell, but this liquid belongs in the outhouse, not in a bottle!
+very familiar smell, but this yellow liquid belongs in the outhouse, not in a bottle!
 """
 
 BOTTLE_CANNOT_APPLY = """
@@ -1318,8 +1324,8 @@ class Bottle(objects.Smellable, objects.Usable):
     # must set flag on creation
 
     def at_focus_smell(self, caller, **kwargs):
-        # set the .db.smell attr on creation
-        self.msg_char(caller, self.db.txt_smell.strip())
+        # set the .db.txt_smell attr on creation
+        self.msg_char(caller, self.db.txt_smell_long.strip())
 
     def at_apply(self, caller, action, target):
         self.room.score(2, f"apply_bottle_{self.key}")
@@ -1327,7 +1333,7 @@ class Bottle(objects.Smellable, objects.Usable):
             caller, self,
             txt_ingredient=self.db.txt_ingredient,
             color=self.db.txt_color,
-            smell=self.db.txt_smell,
+            smell=self.db.txt_smell_short,
             extra=self.db.txt_extra or "")
 
     def at_cannot_apply(self, caller, action, target):

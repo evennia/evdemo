@@ -868,7 +868,7 @@ STATE_HINT_LVL5 = """
 Mix in this order to create the 'childmaker' potion':
 
 1. *bottle3 (label says perfume, smells horrible)
-2. *bottle1 (label says stealth, smells roses)
+2. *bottle1 (label says stealth, smells of roses)
 3. *bottle5 (label says beet root, smells urine)
 4. *bottle2 (label says rancid, smells earthy)
 5. *bottle3 (label says perfume, smells horrible)

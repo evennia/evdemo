@@ -203,7 +203,7 @@ def node_quit(caller, raw_string, **kwargs):
     quiet = kwargs.get("quiet")
     text = ""
     if not quiet:
-        text = "Goodbye for now!\n"
+        text = "Goodbye for now!\n\n(enter 'look' to see the Limbo room again)"
         # we check an Attribute on the caller to see if we should
         # leave the game entirely when leaving
         if caller.db.evscaperoom_standalone:
