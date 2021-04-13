@@ -64,13 +64,10 @@ GLOBAL_SCRIPTS = {
 # Django web features
 ######################################################################
 
-
-# The secret key is randomly seeded upon creation. It is used to sign
-# Django's cookies. Do not share this with anyone. Changing it will
-# log out all active web browsing sessions. Game web client sessions
-# may survive.
-SECRET_KEY = 'H/,^%v)xx6+_7.ddddjTiR;BK*]-u$"fEMZF(w`[2=j&nV'
-
+try:
+    from server.conf.secret_settings import *
+except ImportError:
+    print("secret_settings.py file not found or failed to import.")
 
 try:
     # Created by the `evennia connections` wizard

@@ -124,9 +124,6 @@ def collect_stats(caller, room):
     if hints_used >= hints_total:
         room_achievements.append("|wInglorious|n - |xUsed ALL hints|n")
 
-    if not room_achievements:
-        room_achievements = ["None"]
-
     # answers to questions
     question1 = room.check_character_flag(caller, "question1")
     question2 = room.check_character_flag(caller, "question2")
@@ -136,8 +133,22 @@ def collect_stats(caller, room):
     roomflags = room.db.flags
 
     # total time played in this room
+    spent_time = (timezone.now() - room.db_date_created)
     roomtime = time_format((timezone.now() -
                             room.db_date_created).seconds, style=3)
+
+    if spent_time < timezone.timedelta(minutes=30):
+        room_achievements.append("|wSpeedrunner|n - |xCompleted the room in under 30 minutes|n")
+    elif spent_time < timezone.timedelta(minutes=90):
+        room_achievements.append("|wAn eye for speed|n - |xCompleted the room in under 90 minutes|n")
+    elif spent_time < timezone.timedelta(hours=2):
+        room_achievements.append("|wThe sun's still high|n - |xCompleted the room in under 2 hours|n")
+    elif spent_time > timezone.timedelta(hours=12):
+        room_achievements.append("|wImpressively persistent|n - |xTook more than 12 hours to complete the room|n")
+    elif spent_time > timezone.timedelta(hours=8):
+        room_achievements.append("|wA full work day|n - |xTook more than 8 hours to complete the room|n")
+    elif spent_time > timezone.timedelta(hours=5):
+        room_achievements.append("|wWork at your own pace|n - |xTook more than five hours to complete the room|n")
 
     # individual achievements
     achievements = caller.attributes.get(
@@ -147,6 +158,9 @@ def collect_stats(caller, room):
     else:
         achievements = ["|w{}|n - |x{}|n".format(key, subtxt)
                         for key, subtxt in achievements.items()]
+
+    if not room_achievements:
+        room_achievements = ["None"]
 
     # this can also be fed directly into the scoreboard
     data = dict(
@@ -434,6 +448,7 @@ conspired or stole some concoction from the Magus to do what he did. It could
 be why the Blacksmith is so grumpy. He was even married in the past, according
 to the Jester. Maybe it was to Agda.|n
 
+... Still, you can't help but feel there are a lot of holes in that reasoning.
 """
 
 ENDING_VALE_BAKER = """
@@ -448,6 +463,8 @@ being constantly consumed by plans to make things better!|g
 
 The Jester clearly named the monkey 'Vale' as a mockery of the Baker. Love is a
 joke to the Jester, of that you are sure.|n
+
+... Still, you can't help but feel you are missing some details here.
 """
 
 ENDING_VALE_JESTER = """
@@ -464,6 +481,7 @@ suggests someone with a great deal of imagination and unhealthy fascination
 with tiny and useless details. Maybe this whole thing was just so that the Jester
 could find a good rhyme for 'Baker' ...|n
 
+... Still, you can't help but feel you are missing something.
 """
 
 ENDING_VALE_OTHER = """
@@ -476,6 +494,8 @@ like her to imagine the monkey being truly alive. She then gave it a whole back
 story and a little mystery.|g
 
 She's always trying to fool you, but this time you figured her out!|n
+
+... Still, you can't help but feel you are missing something, damn it.
 """
 
 ENDING_VALE_MAP = {
@@ -508,6 +528,7 @@ Monkey after poisoning Agda. Maybe he realized what he had become.|g
 
 Then again, he claims poisoning Agda was a mistake, but who knows, right?|n
 
+... Still, you can't help but feel there's something off with that answer.
 """
 
 ENDING_MONKEY_BLACKSMITH = """
@@ -535,6 +556,8 @@ Finally, when he made the Monkey automaton for the Jester, he cried but was
 very fast about it. That's because he already had the face - its face is the
 same mask that the bandit wore.|n
 
+... Still, you can't shake the feeling you are missing something subtle but
+important here ...
 """
 
 ENDING_MONKEY_BAKER = """
@@ -562,7 +585,9 @@ pie-eating contest. That's why he lost his appetite and the title of pie-eating
 champion. Agda then ate his pie instead.
 
 The reason the Mute Monkey Bandit disappeared is because Agda's mind was ruined
-by Vale's potion. He got the right villain by accident.|n
+by Vale's potion. 
+
+He got the right villain by accident.|n
 """
 
 ENDING_MONKEY_JESTER = """
@@ -579,8 +604,9 @@ wreck, maybe the other person instead stayed young?|G
 
 Also, why was the Monkey bandit wearing a mask? Why was he mute? Because he was
 a woman! After the pie, the bandit left (maybe it had side effects?) and only
-recently came back in the guise of the Jester.
+recently came back in the guise of the Jester.|n
 
+... Still, you can't help but feel there are details missing in this answer.
 """
 
 ENDING_MONKEY_OTHER = """
@@ -594,6 +620,9 @@ that she ordered the  toy monkey with a look based on the old poster!|g
 
 If the original bandit ever existed he is probably either dead or very old by
 now anyway.|n
+
+... Still, you can't help but feel you are not quite hitting the mark with this
+answer.
 
 """
 
@@ -626,6 +655,8 @@ experiments?|g
 He could have sent her away and only now arranged to get her back, to see the
 effects of his potion over a longer time. He'd want to know that if he wants
 to help Agda ... |n
+
+... Still, you can't help but feel, you are missing something with this answer.
 
 """
 
@@ -669,6 +700,8 @@ divorced for a long time. She was completely messed up by Vale's potion, so it
 must have happened before the marriage.|G
 
 That would make the Jester the baker's illegitimate daughter!|n
+
+... Still, you can't help but feel, you are missing something with this answer.
 """
 
 
@@ -680,6 +713,7 @@ The Jester is the kind of person that could just have spawned fully formed and
 then never change again after that day. The thought of Jesters popping up out
 of the ground is both amusing and disturbing to you as you quicken your steps ...|n
 
+... Still, you can't help but feel, you are missing something with this answer.
 """
 
 ENDING_MAIDEN_NAME_MAP = {
