@@ -9,7 +9,7 @@ the jam was "One Room".
 > The 'game engine' behind this this was broken out into evennia/contrib/evscaperoom
 > for people to be able to make their own escape-rooms. This code uses pretty much
 > all features of the engine to the fullest (because it was created for it) and thus
-> serves as an example of what's possible 
+> can serve as an example of what's possible.
 
 # Introduction
 
