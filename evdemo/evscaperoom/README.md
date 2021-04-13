@@ -7,7 +7,10 @@ the jam was "One Room".
 
 > This code is more recently updated than the original in griatch/evscaperoom, since 
 > this is tied to the live demo server and bugs/issues show up here. So if you want 
-> the 'latest' evscaperoom code, this is the place to grab it from.
+> the 'latest' evscaperoom code, this is the place to grab it from. This gamedir does
+> NOT create the same stand-alone evscaperoom experience as the original did however,
+> it's embedded as part of the evennia demo server. So the original may be easier 
+> to get started.
 
 > Please also note that this has a few hard-coded parts for the sake of finishing the jam; 
 > The 'game engine' behind this this was broken out into evennia/contrib/evscaperoom
