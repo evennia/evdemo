@@ -5,8 +5,18 @@ Griatch 2019
 Created for the MUD Coders Guild game Jam, April 14-May 15 2019. The theme for
 the jam was "One Room".
 
-> Please note that this is a bit hard-coded for the sake of the jam; I plan to
-> break out the 'engine' bits later and make an Evennia contribution out of it later.
+> This code is more recently updated than the original in griatch/evscaperoom, since 
+> this is tied to the live demo server and bugs/issues show up here. So if you want 
+> the 'latest' evscaperoom code, this is the place to grab it from. This gamedir does
+> NOT create the same stand-alone evscaperoom experience as the original did however,
+> it's embedded as part of the evennia demo server. So the original may be easier 
+> to get started.
+
+> Please also note that this has a few hard-coded parts for the sake of finishing the jam; 
+> The 'game engine' behind this this was broken out into evennia/contrib/evscaperoom
+> for people to be able to make their own escape-rooms. This code uses pretty much
+> all features of the engine to the fullest (because it was created for it) and thus
+> can serve as an example of what's possible.
 
 # Introduction
 
