@@ -646,7 +646,7 @@ class IRCLog(object):
     def __init__(self, filename):
         "Sets up the logger"
         self.filename = filename
-        self.filehandle = open(self.filename, 'a', 0)
+        self.filehandle = open(self.filename, 'ab', 0)
         self.pmarker = "<<<PUBLISHED>>>"
 
     def write_log(self, msg):
