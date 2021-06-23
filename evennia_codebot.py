@@ -84,7 +84,7 @@ def clr(txt, color=False, bold=False, italic=False, underline=False):
 # helpers
 
 def fmt_url(msg):
-    return "<{}>".format(clr(msg, 'blue', underline=True))
+    return "<{}>".format(clr(msg, 'cyan', underline=False))
 
 
 def fmt_event(event):
@@ -177,7 +177,7 @@ class WebHookServer(Resource):
         content = request.content.read()
 
         if self.secret is not None:
-            hsh = hmac.new(self.secret, content, sha1)
+            hsh = hmac.new(bytes(self.secret, 'hex'), content, sha1)
             if hsh.digest().encode("hex") != signature[5:]:
                 report("A request arrived with mismatching signature.")
                 return None
@@ -565,7 +565,7 @@ class WebHookServer(Resource):
 
         content = self._validate_signature(request)
         if content is None:
-            return ""
+            return b""
 
         try:
             data = json.loads(content)
@@ -577,7 +577,7 @@ class WebHookServer(Resource):
 
         self.handle_event(event, data)
 
-        return ""
+        return b""
 
     def start(self, port):
         "Start webhook server."
@@ -646,7 +646,7 @@ class IRCLog(object):
     def __init__(self, filename):
         "Sets up the logger"
         self.filename = filename
-        self.filehandle = open(self.filename, 'ab', 0)
+        self.filehandle = open(self.filename, 'a')
         self.pmarker = "<<<PUBLISHED>>>"
 
     def write_log(self, msg):
