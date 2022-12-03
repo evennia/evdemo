@@ -21,14 +21,6 @@ Use |wquell|n to play as a normal player.
 Be aware that this demo will reset without warning, at which point you'll need to recreate your account.
 #
 # Set the help entries
-@sethelp evennia =
-|gEvennia|n is a library and server system for creating text-based multiplayer
-games (commonly known as MUDs or MU*). Evennia offers a very flexible framework
-for coding your game in the Python programming language. You can read more
-about Evennia at http://www.evennia.com.
-
-This is a demo server of Evennia running. It offers a small show-case of some
-of the very different game styles one can create.
 #
 @sethelp mud =
 A |gMUD|n, or Multi-User Dungeon, is the common name for text-based multiplayer games with
@@ -70,10 +62,6 @@ To chat with developers, you can enter the command |wpublic <message>|n, for exa
 You can also use just 'pub'. Usually people will reply but
 if not - hang around: We are spread out all across the globe and may simply not be awake
 or available at the moment.
-
-The demo is connected to the developer IRC channel #evennia on irc.freenode.net. If you
-don't get any reply you can also connect to there directly - just click the 'chat' link
-on www.evennia.com. There is also a Discord channel linked to IRC if you prefer that.
 #
 @sethelp commands =
 To control a MUD you need to enter |gcommands|n. The most common commands you'll use here
@@ -146,7 +134,7 @@ up
 #
 @lock here = edit:perm(Admin)
 #
-@create/drop red button;button;red:contrib.tutorial_examples.red_button.RedButton
+@create/drop red button;button;red:contrib.tutorials.red_button.RedButton
 #
 @lock button = get:false();edit:(Admin)
 #
@@ -156,5 +144,3 @@ up
 #
 @typeclass here = rooms.RestrictedRoom
 #
-say Now run: @irc2chan public = irc.freenode.net 6667 #evennia evdemo
-

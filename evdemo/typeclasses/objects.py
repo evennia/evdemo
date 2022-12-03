@@ -10,9 +10,22 @@ the other types, you can do so by adding this as a multiple
 inheritance.
 
 """
-from evennia import DefaultObject
+from evennia.objects.objects import DefaultObject
 
-class Object(DefaultObject):
+
+class ObjectParent:
+    """
+    This is a mixin that can be used to override *all* entities inheriting at
+    some distance from DefaultObject (Objects, Exits, Characters and Rooms).
+
+    Just add any method that exists on `DefaultObject` to this class. If one
+    of the derived classes has itself defined that same hook already, that will
+    take precedence.
+
+    """
+
+
+class Object(ObjectParent, DefaultObject):
     """
     This is the root typeclass object, implementing an in-game Evennia
     game object, such as having a location, being able to be
@@ -33,12 +46,8 @@ class Object(DefaultObject):
 
      key (string) - name of object
      name (string)- same as key
-     aliases (list of strings) - aliases to the object. Will be saved to
-                           database as AliasDB entries but returned as strings.
      dbref (int, read-only) - unique #id-number. Also "id" can be used.
-                                  back to this class
      date_created (string) - time stamp of object creation
-     permissions (list of strings) - list of permission strings
 
      account (Account) - controlling account (if any, only set together with
                        sessid below)
@@ -47,8 +56,6 @@ class Object(DefaultObject):
                        Sessions directly.
      location (Object) - current location. Is None if this is a room
      home (Object) - safety start-location
-     sessions (list of Sessions, read-only) - returns all sessions connected
-                       to this object
      has_account (bool, read-only)- will only return *connected* accounts
      contents (list of Objects, read-only) - returns all objects inside this
                        object (including exits)
@@ -59,16 +66,20 @@ class Object(DefaultObject):
 
     * Handlers available
 
+     aliases - alias-handler: use aliases.add/remove/get() to use.
+     permissions - permission-handler: use permissions.add/remove() to
+                   add/remove new perms.
      locks - lock-handler: use locks.add() to add new lock strings
-     db - attribute-handler: store/retrieve database attributes on this
-                             self.db.myattr=val, val=self.db.myattr
-     ndb - non-persistent attribute handler: same as db but does not create
-                             a database entry when storing data
      scripts - script-handler. Add new scripts to object with scripts.add()
      cmdset - cmdset-handler. Use cmdset.add() to add new cmdsets to object
      nicks - nick-handler. New nicks with nicks.add().
      sessions - sessions-handler. Get Sessions connected to this
                 object with sessions.get()
+     attributes - attribute-handler. Use attributes.add/remove/get.
+     db - attribute-handler: Shortcut for attribute-handler. Store/retrieve
+            database attributes using self.db.myattr=val, val=self.db.myattr
+     ndb - non-persistent attribute handler: same as db but does not create
+            a database entry when storing data
 
     * Helper methods (see src.objects.objects.py for full headers)
 
@@ -120,13 +131,13 @@ class Object(DefaultObject):
                             of a lock access check on this object. Return value
                             does not affect check result.
 
-     at_before_move(destination)             - called just before moving object
+     at_pre_move(destination)             - called just before moving object
                         to the destination. If returns False, move is cancelled.
      announce_move_from(destination)         - called in old location, just
                         before move, if obj.move_to() has quiet=False
      announce_move_to(source_location)       - called in new location, just
                         after move, if obj.move_to() has quiet=False
-     at_after_move(source_location)          - always called after a move has
+     at_post_move(source_location)          - always called after a move has
                         been successfully performed.
      at_object_leave(obj, target_location)   - called when an object leaves
                         this object in any fashion
@@ -137,7 +148,7 @@ class Object(DefaultObject):
                               handles all moving across the exit, including
                               calling the other exit hooks. Use super() to retain
                               the default functionality.
-     at_after_traverse(traversing_object, source_location) - (exit-objects only)
+     at_post_traverse(traversing_object, source_location) - (exit-objects only)
                               called just after a traversal has happened.
      at_failed_traverse(traversing_object)      - (exit-objects only) called if
                        traversal fails and property err_traverse is not defined.
@@ -158,5 +169,6 @@ class Object(DefaultObject):
      at_say(speaker, message)  - by default, called if an object inside this
                                  object speaks
 
-     """
+    """
+
     pass

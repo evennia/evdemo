@@ -15,7 +15,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 """
 
 from evennia import default_cmds
-from commands import command
+
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
@@ -23,17 +23,17 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
     `get`, etc available on in-game Character objects. It is merged with
     the `AccountCmdSet` when an Account puppets a Character.
     """
+
     key = "DefaultCharacter"
 
     def at_cmdset_creation(self):
         """
         Populates the cmdset
         """
-        super(CharacterCmdSet, self).at_cmdset_creation()
+        super().at_cmdset_creation()
         #
         # any commands you add below will overload the default ones.
         #
-        self.add(command.CmdTap())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
@@ -43,13 +43,14 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
     Character. It holds game-account-specific commands, channel
     commands, etc.
     """
+
     key = "DefaultAccount"
 
     def at_cmdset_creation(self):
         """
         Populates the cmdset
         """
-        super(AccountCmdSet, self).at_cmdset_creation()
+        super().at_cmdset_creation()
         #
         # any commands you add below will overload the default ones.
         #
@@ -60,13 +61,14 @@ class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
     Command set available to the Session before being logged in.  This
     holds commands like creating a new account, logging in, etc.
     """
+
     key = "DefaultUnloggedin"
 
     def at_cmdset_creation(self):
         """
         Populates the cmdset
         """
-        super(UnloggedinCmdSet, self).at_cmdset_creation()
+        super().at_cmdset_creation()
         #
         # any commands you add below will overload the default ones.
         #
@@ -77,6 +79,7 @@ class SessionCmdSet(default_cmds.SessionCmdSet):
     This cmdset is made available on Session level once logged in. It
     is empty by default.
     """
+
     key = "DefaultSession"
 
     def at_cmdset_creation(self):
@@ -87,7 +90,7 @@ class SessionCmdSet(default_cmds.SessionCmdSet):
         As and example we just add the empty base `Command` object.
         It prints some info.
         """
-        super(SessionCmdSet, self).at_cmdset_creation()
+        super().at_cmdset_creation()
         #
         # any commands you add below will overload the default ones.
         #

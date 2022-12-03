@@ -51,8 +51,8 @@ IDLE_TIMEOUT = 3600 * 24 * 7
 PERMISSION_ACCOUNT_DEFAULT = "Builders"
 IRC_ENABLED = True
 
-#LOCKDOWN_MODE = True
-DEBUG=True
+# LOCKDOWN_MODE = True
+# DEBUG=True
 
 GLOBAL_SCRIPTS = {
     "Evscaperoom gc": {

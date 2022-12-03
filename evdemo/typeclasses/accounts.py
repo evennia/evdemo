@@ -22,13 +22,7 @@ several more options for customizing the Guest account system.
 
 """
 
-from evennia import DefaultAccount, DefaultGuest
-from .channels import Channel
-
-try:
-    _PUBLIC_CHANNEL = Channel.objects.get(db_key__iexact="public")
-except Channel.DoesNotExist:
-    _PUBLIC_CHANNEL = None
+from evennia.accounts.accounts import DefaultAccount, DefaultGuest
 
 
 class Account(DefaultAccount):
@@ -71,7 +65,6 @@ class Account(DefaultAccount):
     * Helper methods
 
      msg(text=None, **kwargs)
-     swap_character(new_character, delete_old_character=False)
      execute_cmd(raw_string, session=None)
      search(ostring, global_search=False, attribute_name=None, use_nicks=False, location=None, ignore_errors=False, account=False)
      is_typeclass(typeclass, exact=False)
@@ -98,35 +91,8 @@ class Account(DefaultAccount):
      at_server_shutdown()
 
     """
-    def at_account_creation(self):
-        super().at_account_creation()
-        self.locks.add("noidletimeout:perm(Admin) or perm(noidletimeout)")
 
-    def at_first_login(self):
-        super().at_first_login()
-        if _PUBLIC_CHANNEL:
-            _PUBLIC_CHANNEL.msg("|c{}|n just |gconnected|n to the Evennia demo for the first time!".format(self.key))
-            self.msg("|gWelcome to the Evennia demo. Try writing '|wpub hello!|g' to chat and ask questions! "
-                     "Please be patient for an answer.|n\n"
-                     "Your message will echo to the external Evennia support channels on IRC/Discord "
-                     "(so our answers may look like they are coming from a bot, but we are real people, promise!).")
-            self.ndb.chan_greeting_done = True
-
-    def at_post_login(self, session):
-        super().at_post_login(session)
-        if _PUBLIC_CHANNEL and not self.ndb.chan_greeting_done:
-            _PUBLIC_CHANNEL.msg("|c{}|n just |gconnected|n to the Evennia demo!".format(self.key))
-        del self.ndb.chan_greeting_done
-
-        char = self.db._last_puppet
-        if char:
-            char.permissions.clear()
-            char.permissions.add("Player")
-
-    def at_disconnect(self, reason=None, **kwargs):
-        if _PUBLIC_CHANNEL and self.is_connected:
-            _PUBLIC_CHANNEL.msg("|c{}|n |rdisconnected|n from the Evennia demo.".format(self.key))
-        super().at_disconnect()
+    pass
 
 
 class Guest(DefaultGuest):
@@ -134,4 +100,5 @@ class Guest(DefaultGuest):
     This class is used for guest logins. Unlike Accounts, Guests and their
     characters are deleted after disconnection.
     """
+
     pass

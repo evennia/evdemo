@@ -25,6 +25,7 @@ line to your settings file:
 
 """
 
+
 def at_search_result(matches, caller, query="", quiet=False, **kwargs):
     """
     This is a generic hook for handling all processing of a search
@@ -41,7 +42,7 @@ def at_search_result(matches, caller, query="", quiet=False, **kwargs):
         quiet (bool, optional): If `True`, no messages will be echoed to caller
             on errors.
 
-    Kwargs:
+    Keyword Args:
         nofound_string (str): Replacement string to echo on a notfound error.
         multimatch_string (str): Replacement string to echo on a multimatch error.
 
